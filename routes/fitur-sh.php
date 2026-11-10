@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\LamaranController;
+use App\Http\Controllers\NotifikasiController;
 use App\Http\Controllers\PelamarController;
 use App\Http\Controllers\PostinganController;
 use Illuminate\Support\Facades\Route;
@@ -20,4 +21,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/lamaran/{lamaran}', [PelamarController::class, 'show'])->name('pelamar.show');
     Route::post('/lamaran/{lamaran}/terima', [PelamarController::class, 'terima'])->name('pelamar.terima');
     Route::post('/lamaran/{lamaran}/tolak', [PelamarController::class, 'tolak'])->name('pelamar.tolak');
+
+    // Halaman Permintaan Kolaborasi dan tandai notifikasi sudah dibaca
+    Route::get('/notifikasi', [NotifikasiController::class, 'index'])->name('notifikasi.index');
+    Route::post('/notifikasi/dibaca-semua', [NotifikasiController::class, 'tandaiSemuaDibaca'])->name('notifikasi.dibaca-semua');
+    Route::post('/notifikasi/{notifikasi}/dibaca', [NotifikasiController::class, 'tandaiDibaca'])->name('notifikasi.dibaca');
 });
