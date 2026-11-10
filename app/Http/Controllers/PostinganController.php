@@ -46,4 +46,5 @@ class PostinganController extends Controller
             'kandidat' => $kandidat,
         ]);
     }
+
 }

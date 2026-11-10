@@ -11,23 +11,37 @@ class RegistrationTest extends TestCase
 
     public function test_registration_screen_can_be_rendered(): void
     {
-        $response = $this->get('/register');
-
-        $response->assertStatus(200);
+        $this->get('/register')->assertStatus(200);
     }
 
-    public function test_new_users_can_register(): void
+    public function test_new_users_can_register_and_must_verify_code(): void
     {
         $response = $this->post('/register', [
             'name' => 'Test User',
-            'tanggal_lahir' => '2000-01-01',
-            'email' => 'test@example.com',
+            'tanggal_lahir' => '2004-05-10',
+            'email' => 'test@student.ub.ac.id',
             'no_telepon' => '081234567890',
             'password' => 'password',
             'password_confirmation' => 'password',
         ]);
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $this->assertGuest();
+        $response->assertRedirect(route('verifikasi.form', absolute: false));
+        $this->assertDatabaseHas('users', ['email' => 'test@student.ub.ac.id']);
+    }
+
+    public function test_non_campus_email_is_rejected(): void
+    {
+        $response = $this->post('/register', [
+            'name' => 'Test User',
+            'tanggal_lahir' => '2004-05-10',
+            'email' => 'test@gmail.com',
+            'no_telepon' => '081234567890',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $response->assertSessionHasErrors('email');
+        $this->assertDatabaseMissing('users', ['email' => 'test@gmail.com']);
     }
 }
