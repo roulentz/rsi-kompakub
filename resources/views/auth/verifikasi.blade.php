@@ -1,23 +1,24 @@
 <x-guest-layout>
     <x-flash />
 
-    <p class="mb-4 text-sm text-gray-600">
-        Masukkan kode 6 digit yang dikirim ke <strong>{{ $email }}</strong>. Kode berlaku 10 menit.
-    </p>
+    <div class="mb-4">
+        <h1 class="kub-heading">Verifikasi Email</h1>
+        <p class="kub-muted mt-1">
+            Masukkan kode 6 digit yang dikirim ke <strong class="text-navy-deep">{{ $email }}</strong>. Kode berlaku 10 menit.
+        </p>
+    </div>
 
     <form method="POST" action="{{ route('verifikasi.proses') }}">
         @csrf
         <x-input-label for="kode" value="Kode verifikasi" />
-        <x-text-input id="kode" class="block mt-1 w-full tracking-widest text-center text-lg" type="text" name="kode" inputmode="numeric" maxlength="6" required autofocus />
+        <x-text-input id="kode" class="mt-1 block w-full text-center text-lg tracking-widest" type="text" name="kode" inputmode="numeric" maxlength="6" required autofocus />
         <x-input-error :messages="$errors->get('kode')" class="mt-2" />
 
-        <div class="mt-4 flex justify-end">
-            <x-primary-button>Verifikasi</x-primary-button>
-        </div>
+        <x-primary-button class="mt-6 w-full">Verifikasi</x-primary-button>
     </form>
 
-    <form method="POST" action="{{ route('verifikasi.kirim-ulang') }}" class="mt-3">
+    <form method="POST" action="{{ route('verifikasi.kirim-ulang') }}" class="mt-4 text-center">
         @csrf
-        <button class="underline text-sm text-gray-600 hover:text-gray-900">Kirim ulang kode</button>
+        <button class="kub-link text-xs">Kirim ulang kode</button>
     </form>
 </x-guest-layout>

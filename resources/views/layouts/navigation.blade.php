@@ -1,61 +1,66 @@
-@php
-    $menu = Auth::user()->role === 'admin'
-        ? [['Laporan Rekomendasi', route('admin.rekomendasi.index'), request()->routeIs('admin.*')]]
-        : [
-            ['Beranda', route('dashboard'), request()->routeIs('dashboard')],
-            ['Cari', url('/search'), request()->is('search*')],
-            ['Notifikasi', url('/notifikasi'), request()->is('notifikasi*')],
-            ['Pesan', url('/dm'), request()->is('dm*')],
-            ['Profil', route('profil.show'), request()->routeIs('profil.*', 'portofolio.*')],
-        ];
-@endphp
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
-    <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
-                    </a>
-                </div>
+{{--
+    Navbar atas biru tua: logo, kolom cari, notifikasi, menu akun, dan menu HP.
+    $menu datang dari layouts/app.blade.php.
+    Semua link pakai url() sesuai panduan Tahap 1 langkah 6, bukan route().
+    Placeholder: kolom cari mengirim GET ke /search (halaman milik GP, belum ada).
+--}}
+@php($admin = Auth::user()->role === 'admin')
+<header x-data="{ open: false }" class="sticky top-0 z-40 bg-navy text-white shadow-sm">
+    <div class="mx-auto flex h-14 max-w-[1440px] items-center gap-3 px-4 sm:px-6">
+        <!-- Logo -->
+        <a href="{{ url('/dashboard') }}" class="shrink-0 lg:w-48">
+            <x-brand class="text-lg sm:text-xl" />
+        </a>
 
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    @foreach ($menu as [$label, $url, $aktif])
-                        <x-nav-link :href="$url" :active="$aktif">{{ $label }}</x-nav-link>
-                    @endforeach
+        <!-- Cari -->
+        @unless ($admin)
+            <form method="GET" action="{{ url('/search') }}" role="search" class="mx-auto min-w-0 flex-1 sm:max-w-xl">
+                <label for="cari-global" class="sr-only">Cari</label>
+                <div class="flex items-center gap-2 rounded-full border border-white/40 bg-white/10 px-4 py-1.5 focus-within:border-brand focus-within:bg-white/15">
+                    <x-icon name="search" class="h-4 w-4 shrink-0 text-white/80" />
+                    <input id="cari-global" type="search" name="q" value="{{ request('q') }}"
+                           placeholder="Cari tim, rekan, informasi lomba ..."
+                           class="w-full min-w-0 border-0 bg-transparent p-0 text-xs text-white placeholder-white/70 focus:ring-0" />
                 </div>
-            </div>
+            </form>
+        @else
+            <div class="flex-1"></div>
+        @endunless
 
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
+        <div class="ms-auto flex shrink-0 items-center gap-1 sm:gap-2">
+            <!-- Notifikasi -->
+            @unless ($admin)
+                <a href="{{ url('/notifikasi') }}"
+                   class="rounded-full p-2 transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-brand"
+                   aria-label="Notifikasi">
+                    <x-icon name="bell" class="h-5 w-5" />
+                </a>
+            @endunless
+
+            <!-- Menu akun -->
+            <div class="hidden sm:block">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
-
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
+                        <button class="flex items-center rounded-full p-1 transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-brand" aria-label="Menu akun">
+                            <x-avatar :user="Auth::user()" size="h-8 w-8" />
                         </button>
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            Pengaturan Akun
-                        </x-dropdown-link>
+                        <div class="border-b border-gray-100 px-4 py-2">
+                            <div class="truncate text-sm font-semibold text-navy-deep">{{ Auth::user()->name }}</div>
+                            <div class="truncate text-xs text-gray-500">{{ Auth::user()->email }}</div>
+                        </div>
 
-                        <!-- Authentication -->
-                        <form method="POST" action="{{ route('logout') }}">
+                        @unless ($admin)
+                            <x-dropdown-link :href="url('/profil')">Profil Saya</x-dropdown-link>
+                        @endunless
+                        <x-dropdown-link :href="url('/profile')">Pengaturan Akun</x-dropdown-link>
+
+                        <form method="POST" action="{{ url('/logout') }}">
                             @csrf
-
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
+                            <x-dropdown-link :href="url('/logout')"
+                                    onclick="event.preventDefault(); this.closest('form').submit();">
                                 {{ __('Log Out') }}
                             </x-dropdown-link>
                         </form>
@@ -63,49 +68,44 @@
                 </x-dropdown>
             </div>
 
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
+            <!-- Hamburger (HP dan tablet, sidebar disembunyikan di bawah lg) -->
+            <button @click="open = ! open" class="rounded-full p-2 transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-brand lg:hidden"
+                    aria-label="Buka menu" :aria-expanded="open">
+                <x-icon name="bars" class="h-6 w-6" x-show="! open" />
+                <x-icon name="x" class="h-6 w-6" x-show="open" x-cloak />
+            </button>
         </div>
     </div>
 
-    <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
-            @foreach ($menu as [$label, $url, $aktif])
-                <x-responsive-nav-link :href="$url" :active="$aktif">{{ $label }}</x-responsive-nav-link>
-            @endforeach
-        </div>
-
-        <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-            </div>
-
-            <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    Pengaturan Akun
+    <!-- Menu HP -->
+    <div x-show="open" x-cloak x-transition class="border-t border-white/10 bg-navy lg:hidden">
+        <nav class="space-y-1 px-4 py-3" aria-label="Menu utama">
+            @foreach ($menu as [$label, $url, $aktif, $ikon])
+                <x-responsive-nav-link :href="$url" :active="$aktif">
+                    <x-icon :name="$ikon" class="h-5 w-5" />
+                    {{ $label }}
                 </x-responsive-nav-link>
+            @endforeach
+        </nav>
 
-                <!-- Authentication -->
-                <form method="POST" action="{{ route('logout') }}">
+        <div class="border-t border-white/10 px-4 py-3">
+            <div class="flex items-center gap-3 px-1">
+                <x-avatar :user="Auth::user()" size="h-9 w-9" />
+                <div class="min-w-0">
+                    <div class="truncate text-sm font-semibold">{{ Auth::user()->name }}</div>
+                    <div class="truncate text-xs text-white/70">{{ Auth::user()->email }}</div>
+                </div>
+            </div>
+            <div class="mt-3 space-y-1">
+                <x-responsive-nav-link :href="url('/profile')">Pengaturan Akun</x-responsive-nav-link>
+                <form method="POST" action="{{ url('/logout') }}">
                     @csrf
-
-                    <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();">
+                    <x-responsive-nav-link :href="url('/logout')"
+                            onclick="event.preventDefault(); this.closest('form').submit();">
                         {{ __('Log Out') }}
                     </x-responsive-nav-link>
                 </form>
             </div>
         </div>
     </div>
-</nav>
+</header>

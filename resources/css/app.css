@@ -5,3 +5,55 @@
 [x-cloak] {
     display: none !important;
 }
+
+/*
+ * Kelas bersama KompakUB. Dipakai komponen Blade di resources/views/components
+ * dan boleh dipakai langsung di halaman. Tambah kelas baru di sini, jangan di tiap halaman.
+ */
+@layer base {
+    body {
+        @apply bg-white text-navy-deep;
+    }
+}
+
+@layer components {
+    /* Kartu abu-abu seperti kartu postingan dan pelamar di desain. */
+    .kub-card {
+        @apply rounded-kub bg-surface p-4 sm:p-5;
+    }
+
+    /* Kartu putih dengan garis tipis, untuk isi form dan panel. */
+    .kub-panel {
+        @apply rounded-kub border border-gray-100 bg-white p-4 shadow-sm sm:p-5;
+    }
+
+    /* Blok biru tua berisi info (Lomba, Tanggal, Slot, Skill). */
+    .kub-info {
+        @apply rounded-lg bg-navy-dark px-3 py-2 text-xs text-white;
+    }
+
+    /* Chip kecil untuk skill dan status. */
+    .kub-chip {
+        @apply inline-flex items-center gap-1 rounded-full bg-surface-tint px-2.5 py-0.5 text-xs font-medium text-navy;
+    }
+
+    .kub-chip-brand {
+        @apply bg-brand-soft text-brand-dark;
+    }
+
+    .kub-chip-navy {
+        @apply bg-navy text-white;
+    }
+
+    .kub-heading {
+        @apply text-lg font-semibold text-navy-deep sm:text-xl;
+    }
+
+    .kub-muted {
+        @apply text-sm text-gray-500;
+    }
+
+    .kub-link {
+        @apply font-medium text-brand-dark underline-offset-2 hover:underline;
+    }
+}
