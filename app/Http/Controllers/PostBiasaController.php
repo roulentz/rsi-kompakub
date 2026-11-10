@@ -8,7 +8,13 @@ use Illuminate\Support\Facades\Auth;
 
 class PostBiasaController extends Controller
 {
-    // Post biasa (teks maksimal 1000 karakter dan foto opsional)
+    // Menampilkan halaman form buat post biasa
+    public function create()
+    {
+        return view('beranda.post-biasa');
+    }
+
+    // Menyimpan postingan biasa (teks maksimal 1000 karakter dan foto opsional)
     public function store(Request $request)
     {
         $request->validate([
