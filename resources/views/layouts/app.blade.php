@@ -42,7 +42,7 @@
         <div class="min-h-screen bg-white">
             @include('layouts.navigation', ['menu' => $menu])
 
-            <div class="mx-auto flex w-full max-w-[1440px]">
+            <div class="mx-auto flex w-full max-w-[1440px] xl:pl-[11px]">
                 @include('layouts.sidebar', ['menu' => $menu])
 
                 <div class="min-w-0 flex-1">
@@ -59,8 +59,8 @@
                     </main>
                 </div>
 
-                <aside class="hidden w-72 shrink-0 p-4 xl:block">
-                    <div class="sticky top-[4.5rem]">
+                <aside class="hidden w-[279px] shrink-0 pr-4 pt-[25px] xl:ml-4 xl:block 2xl:ml-10">
+                    <div class="sticky top-[110px]">
                         @isset($aside)
                             {{ $aside }}
                         @else
