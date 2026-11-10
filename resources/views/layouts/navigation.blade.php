@@ -1,3 +1,14 @@
+@php
+    $menu = Auth::user()->role === 'admin'
+        ? [['Laporan Rekomendasi', route('admin.rekomendasi.index'), request()->routeIs('admin.*')]]
+        : [
+            ['Beranda', route('dashboard'), request()->routeIs('dashboard')],
+            ['Cari', url('/search'), request()->is('search*')],
+            ['Notifikasi', url('/notifikasi'), request()->is('notifikasi*')],
+            ['Pesan', url('/dm'), request()->is('dm*')],
+            ['Profil', route('profil.show'), request()->routeIs('profil.*', 'portofolio.*')],
+        ];
+@endphp
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -12,9 +23,9 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
+                    @foreach ($menu as [$label, $url, $aktif])
+                        <x-nav-link :href="$url" :active="$aktif">{{ $label }}</x-nav-link>
+                    @endforeach
                 </div>
             </div>
 
@@ -35,7 +46,7 @@
 
                     <x-slot name="content">
                         <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
+                            Pengaturan Akun
                         </x-dropdown-link>
 
                         <!-- Authentication -->
@@ -67,9 +78,9 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
+            @foreach ($menu as [$label, $url, $aktif])
+                <x-responsive-nav-link :href="$url" :active="$aktif">{{ $label }}</x-responsive-nav-link>
+            @endforeach
         </div>
 
         <!-- Responsive Settings Options -->
@@ -81,7 +92,7 @@
 
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
+                    Pengaturan Akun
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->
