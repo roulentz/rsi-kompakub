@@ -18,3 +18,4 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+require _DIR_.'/fitur-sh.php';
