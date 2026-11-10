@@ -26,7 +26,27 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
+        $user = $request->user();
+
+        // Akun mahasiswa yang belum verifikasi email tidak boleh masuk; kirim kode baru.
+        if (! $user->isAdmin() && $user->email_verified_at === null) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            $user->kirimKodeVerifikasi();
+
+            $request->session()->put('verif_email', $user->email);
+
+            return redirect()->route('verifikasi.form')
+                ->with('status', 'Email Anda belum diverifikasi. Kode baru sudah dikirim.');
+        }
+
         $request->session()->regenerate();
+
+        if ($user->isAdmin()) {
+            return redirect()->intended(route('admin.rekomendasi.index', absolute: false));
+        }
 
         return redirect()->intended(route('dashboard', absolute: false));
     }

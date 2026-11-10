@@ -4,52 +4,38 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
+use App\Rules\EmailKampus;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     */
     public function create(): View
     {
         return view('auth.register');
     }
 
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws ValidationException
-     */
+    /** registerAkun(): validasi, simpan akun, kirim kode verifikasi 6 digit. */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'tanggal_lahir' => ['required', 'date'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'no_telepon' => ['required', 'string', 'max:20'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:100'],
+            'tanggal_lahir' => ['required', 'date', 'before:today'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:100', 'unique:users,email', new EmailKampus],
+            'no_telepon' => ['required', 'string', 'regex:/^(\+62|62|0)8[0-9]{8,12}$/', 'max:20'],
+            'password' => ['required', 'confirmed', Password::defaults()],
+        ], [
+            'no_telepon.regex' => 'Nomor telepon harus berformat Indonesia, misalnya 081234567890.',
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'tanggal_lahir' => $request->tanggal_lahir,
-            'email' => $request->email,
-            'no_telepon' => $request->no_telepon,
-            'password' => Hash::make($request->password),
-        ]);
+        $user = User::create($data);
+        $user->kirimKodeVerifikasi();
 
-        event(new Registered($user));
+        $request->session()->put('verif_email', $user->email);
 
-        Auth::login($user);
-
-        return redirect(route('dashboard', absolute: false));
+        return redirect()->route('verifikasi.form')
+            ->with('status', 'Kode verifikasi telah dikirim ke email Anda.');
     }
 }
