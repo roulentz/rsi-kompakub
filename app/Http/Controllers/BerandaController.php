@@ -2,40 +2,80 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Postingan;
+use App\Models\PreferensiUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Postingan;        // model SH — pakai setelah merge
-use App\Models\PreferensiUser;
 
 class BerandaController extends Controller
 {
+    // EFP-PC01 & EFP-PC02: Mengambil dan menyaring feed beranda
     public function index(Request $request)
     {
         $user = Auth::user();
-        $filter = $request->input('kategori', 'Semua');
+        $profil = $user->profil;
 
-        // Simpan filter terakhir ke tabel preferensi_user
-        PreferensiUser::updateOrCreate(
-            ['user_id' => $user->id],
-            ['filter_terakhir' => $filter]
-        );
+        // Ambil atau inisialisasi preferensi filter user
+        $preferensi = null;
+        if ($profil) {
+            $preferensi = PreferensiUser::firstOrCreate(
+                ['id_profil' => $profil->id_profil],
+                ['kategori_terakhir' => 'Semua']
+            );
+        }
 
-        // Ambil postingan (pakai data dummy dulu sebelum model SH merge)
-        if (class_exists(Postingan::class)) {
-            $postingan = $filter === 'Semua'
-                ? Postingan::latest()->get()
-                : Postingan::where('kategori', $filter)->latest()->get();
+        // Tentukan kategori yang aktif: dari parameter URL (jika ada) atau dari preferensi terakhir
+        $kategoriAktif = $request->query('kategori');
+
+        if ($kategoriAktif) {
+            $kategoriValid = ['Semua', 'Cari Tim', 'Info Lomba'];
+            if (!in_array($kategoriAktif, $kategoriValid)) {
+                $kategoriAktif = 'Semua';
+            }
+
+            // EFP-PC03: Simpan preferensi filter terakhir
+            if ($preferensi && $preferensi->kategori_terakhir !== $kategoriAktif) {
+                $preferensi->update(['kategori_terakhir' => $kategoriAktif]);
+            }
         } else {
-            // Data dummy sementara
-            $postingan = collect([
-                (object)['id' => 1, 'judul' => 'Cari Tim Hackathon', 'kategori' => 'Cari Tim', 'isi' => 'Butuh developer mobile...', 'created_at' => now()],
-                (object)['id' => 2, 'judul' => 'Info Lomba Gemastik', 'kategori' => 'Info Lomba', 'isi' => 'Deadline 20 Desember...', 'created_at' => now()],
-            ]);
-            if ($filter !== 'Semua') {
-                $postingan = $postingan->where('kategori', $filter);
+            $kategoriAktif = $preferensi ? $preferensi->kategori_terakhir : 'Semua';
+        }
+
+        // Query postingan
+        $query = Postingan::with(['pembuat.user', 'lamaran'])
+            ->orderByDesc('created_at');
+
+        if ($kategoriAktif !== 'Semua') {
+            $query->where('kategori', $kategoriAktif);
+        }
+
+        $postingan = $query->paginate(10)->withQueryString();
+
+        return view('beranda.index', compact('postingan', 'kategoriAktif', 'profil'));
+    }
+
+    // Detail postingan
+    public function show(Postingan $postingan)
+    {
+        $postingan->load(['pembuat.user', 'pembuat.skills', 'lamaran']);
+
+        $user = Auth::user();
+        $profil = $user->profil;
+
+        // Cek apakah user saat ini sudah pernah melamar di postingan ini
+        $sudahMelamar = false;
+        $statusLamaran = null;
+        if ($profil) {
+            $lamaranSaya = $postingan->lamaran()
+                ->where('id_pelamar', $profil->id_profil)
+                ->first();
+
+            if ($lamaranSaya) {
+                $sudahMelamar = true;
+                $statusLamaran = $lamaranSaya->status;
             }
         }
 
-        return view('beranda.index', compact('postingan', 'filter'));
+        return view('beranda.show', compact('postingan', 'profil', 'sudahMelamar', 'statusLamaran'));
     }
 }
