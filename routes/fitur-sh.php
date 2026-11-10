@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\LamaranController;
+use App\Http\Controllers\PelamarController;
 use App\Http\Controllers\PostinganController;
 use Illuminate\Support\Facades\Route;
 
@@ -13,4 +14,10 @@ Route::middleware('auth')->group(function () {
 
     // PCT-PC06: kirim lamaran (route kontrak untuk tombol Lamar milik MZ)
     Route::post('/postingan/{postingan_id}/lamaran', [LamaranController::class, 'store'])->name('lamaran.store');
+
+    // Kelola pelamar: daftar, profil lengkap, terima, tolak (PCT-PC02, PC03, PC04)
+    Route::get('/postingan/{postingan}/pelamar', [PelamarController::class, 'index'])->name('pelamar.index');
+    Route::get('/lamaran/{lamaran}', [PelamarController::class, 'show'])->name('pelamar.show');
+    Route::post('/lamaran/{lamaran}/terima', [PelamarController::class, 'terima'])->name('pelamar.terima');
+    Route::post('/lamaran/{lamaran}/tolak', [PelamarController::class, 'tolak'])->name('pelamar.tolak');
 });
