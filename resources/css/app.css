@@ -7,34 +7,44 @@
 }
 
 /*
- * Kelas bersama KompakUB. Dipakai komponen Blade di resources/views/components
- * dan boleh dipakai langsung di halaman. Tambah kelas baru di sini, jangan di tiap halaman.
+ * Kelas bersama KompakUB.
+ * Dipakai komponen Blade di resources/views/components
+ * dan boleh dipakai langsung di halaman.
+ * Tambah kelas baru di sini, jangan di tiap halaman.
  */
 @layer base {
     body {
-        @apply bg-white text-navy-deep;
+        @apply bg-white text-navy font-sans;
     }
 }
 
 @layer components {
-    /* Kartu abu-abu seperti kartu postingan dan pelamar di desain. */
+    /* ─── Kartu abu-abu (postingan, box) ─── */
     .kub-card {
-        @apply rounded-kub bg-surface p-4 sm:p-5;
+        @apply rounded-kub bg-surface p-2 sm:p-[15px];
     }
 
-    /* Kartu putih dengan garis tipis, untuk isi form dan panel. */
+    /* ─── Kartu putih dengan garis tipis (form, panel) ─── */
     .kub-panel {
-        @apply rounded-kub border border-gray-100 bg-white p-4 shadow-sm sm:p-5;
+        @apply rounded-kub-lg border border-gray-100 bg-white p-4 shadow-sm sm:p-5;
     }
 
-    /* Blok biru tua berisi info (Lomba, Tanggal, Slot, Skill). */
-    .kub-info {
-        @apply rounded-lg bg-navy-dark px-3 py-2 text-xs text-white;
+    /* ─── Blok biru tua untuk info tile (Lomba, Tanggal, Slot, Skill) ─── */
+    .kub-tile {
+        @apply flex gap-[5px] rounded-kub-lg bg-navy-dark px-[11px] pt-2 text-sub text-surface-tint;
+        line-height: 12px;
     }
 
-    /* Chip kecil untuk skill dan status. */
+    /* ─── Inset putih di dalam card ─── */
+    .kub-inset {
+        @apply rounded-kub-lg bg-white p-[14px_16px];
+    }
+
+    /* ─── Chip kecil (skill tag, status) ─── */
     .kub-chip {
-        @apply inline-flex items-center gap-1 rounded-full bg-surface-tint px-2.5 py-0.5 text-xs font-medium text-navy;
+        @apply inline-flex items-center gap-1 rounded-[10px] bg-lavender px-1.5 py-0 text-chip text-navy-dark;
+        min-width: 81px;
+        height: 15px;
     }
 
     .kub-chip-brand {
@@ -45,15 +55,197 @@
         @apply bg-navy text-white;
     }
 
-    .kub-heading {
-        @apply text-lg font-semibold text-navy-deep sm:text-xl;
+    /* ─── Pill badge (notifikasi, status) ─── */
+    .kub-pill {
+        @apply inline-flex items-center gap-1 rounded-pill bg-lavender px-3 text-sub text-navy;
+        height: 24px;
+        white-space: nowrap;
     }
 
-    .kub-muted {
-        @apply text-sm text-gray-500;
+    .kub-pill-ok {
+        @apply bg-navy text-white;
     }
 
-    .kub-link {
-        @apply font-medium text-brand-dark underline-offset-2 hover:underline;
+    .kub-pill-no {
+        @apply bg-[#FDE8E8] text-[#B00020];
+    }
+
+    /* ─── Tombol pill oranye (Apply, Kirim Pesan, dll) ─── */
+    .kub-btn {
+        @apply inline-flex items-center gap-1 rounded-pill bg-brand px-3.5 text-xs text-white;
+        height: 24px;
+        font-size: 12px;
+    }
+
+    .kub-btn:disabled {
+        @apply bg-lavender text-navy-dark cursor-default;
+    }
+
+    .kub-btn-navy {
+        @apply bg-navy;
+    }
+
+    .kub-btn-ghost {
+        @apply bg-lavender text-navy;
+    }
+
+    /* ─── Compose bar ─── */
+    .kub-compose {
+        @apply flex items-center gap-6 rounded-kub bg-surface;
+        height: 80px;
+        padding-left: 26px;
+    }
+
+    .kub-compose-input {
+        @apply rounded-kub-lg bg-white text-sm text-left;
+        width: 531px;
+        height: 42px;
+        padding-left: 13px;
+    }
+
+    /* ─── Filter tab bar ─── */
+    .kub-filter {
+        @apply flex items-center rounded-[80px] bg-lavender text-sm;
+        width: 394px;
+        height: 36px;
+        padding-left: 14px;
+    }
+
+    .kub-tab {
+        @apply rounded-[80px] bg-transparent text-sm text-center;
+        width: 117px;
+        height: 24px;
+        line-height: 24px;
+    }
+
+    .kub-tab-active {
+        @apply bg-brand;
+        width: 110px;
+    }
+
+    /* ─── Feed kolom utama ─── */
+    .kub-feed {
+        @apply relative;
+        width: 637px;
+        margin-left: 34px;
+        padding-top: 25px;
+    }
+
+    /* ─── Inbox / Pesan kolom kanan ─── */
+    .kub-inbox {
+        width: 279px;
+        margin-left: 82px;
+        padding-top: 25px;
+    }
+
+    /* ─── Slot bar (progress anggota) ─── */
+    .kub-slot-bar {
+        @apply flex gap-[5px] mt-[5px];
+    }
+
+    .kub-slot-bar i {
+        @apply rounded-sm;
+        width: 146px;
+        height: 10px;
+        background: theme('colors.lavender');
+        flex: 0 1 146px;
+        min-width: 0;
+    }
+
+    .kub-slot-bar i.on {
+        background: theme('colors.brand.DEFAULT');
+    }
+
+    /* ─── Page title ─── */
+    .kub-page-title {
+        @apply text-title;
+        margin: 0 0 12px 6px;
+    }
+
+    /* ─── Toast ─── */
+    .kub-toast {
+        @apply fixed left-1/2 bottom-8 -translate-x-1/2 z-20 rounded-pill bg-navy px-5 py-3 text-sm text-white;
+    }
+
+    /* ─── Warning ─── */
+    .kub-warning {
+        @apply mt-2.5 rounded-kub bg-[#FDE8E8] px-3 py-2 text-xs text-[#B00020];
+    }
+
+    /* ─── Chat row (inbox) ─── */
+    .kub-chat {
+        @apply flex items-center gap-[9px] rounded-pill bg-white;
+        height: 55px;
+        padding-left: 13px;
+    }
+
+    /* ─── Postingan card (beranda feed) ─── */
+    .kub-post {
+        @apply rounded-kub bg-surface mb-[23px];
+        width: 637px;
+        padding: 8px 45px 28px 15px;
+    }
+
+    /* ─── Post header ─── */
+    .kub-post-head {
+        @apply flex gap-[14px];
+        height: 37px;
+    }
+
+    .kub-post-name {
+        @apply text-body;
+    }
+
+    .kub-post-sub {
+        @apply text-sub text-muted;
+        margin-top: -3px;
+    }
+
+    .kub-post-title {
+        @apply text-post font-bold;
+        margin: 11px 0 7px 51px;
+    }
+
+    /* ─── Deskripsi postingan ─── */
+    .kub-desc {
+        @apply rounded-kub-lg bg-white text-sub text-muted;
+        width: 526px;
+        height: 83px;
+        margin: 12px 0 0 51px;
+        padding: 14px 17px 0 34px;
+        line-height: 1.5;
+    }
+
+    /* ─── Actions row ─── */
+    .kub-actions {
+        @apply flex gap-[5px];
+        margin: 15px 0 0 53px;
+    }
+
+    /* ─── Box (container abu-abu generik) ─── */
+    .kub-box {
+        @apply rounded-kub bg-surface p-[15px] mb-[23px];
+        width: 637px;
+    }
+
+    /* ─── Empty state ─── */
+    .kub-empty {
+        @apply flex flex-col items-center gap-1 text-center;
+        padding: 28px 15px;
+    }
+
+    .kub-empty-icon {
+        @apply grid place-items-center rounded-full bg-lavender;
+        width: 37px;
+        height: 37px;
+        margin-bottom: 6px;
+    }
+
+    .kub-empty-title {
+        @apply text-body font-bold;
+    }
+
+    .kub-empty-text {
+        @apply text-sub text-muted;
     }
 }

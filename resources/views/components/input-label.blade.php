@@ -1,5 +1,6 @@
+{{-- resources/views/components/input-label.blade.php --}}
 @props(['value'])
 
-<label {{ $attributes->merge(['class' => 'block text-sm font-semibold text-navy-deep']) }}>
+<label {{ $attributes->merge(['class' => 'block font-medium text-sm text-navy']) }}>
     {{ $value ?? $slot }}
 </label>

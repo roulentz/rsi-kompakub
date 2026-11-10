@@ -1,19 +1,25 @@
-{{-- Sidebar kiri (layar lg ke atas). Menu datang dari layouts/app.blade.php lewat $menu. --}}
-<aside class="hidden w-60 shrink-0 lg:block">
-    <div class="sticky top-14 flex h-[calc(100vh-3.5rem)] flex-col bg-surface p-4">
-        <nav class="space-y-1.5" aria-label="Menu utama">
-            @foreach ($menu as [$label, $url, $aktif, $ikon])
-                <x-sidebar-link :href="$url" :active="$aktif" :icon="$ikon">{{ $label }}</x-sidebar-link>
-            @endforeach
-        </nav>
+{{-- resources/views/layouts/sidebar.blade.php --}}
+{{-- Sidebar KompakUB — lebar 360px, bg grey, 4 nav items + Make A Post --}}
 
-        @unless (Auth::user()->role === 'admin')
-            {{-- Placeholder: arahkan ke Beranda. Saat form buat postingan jadi modal, ganti href dengan pemicunya. --}}
-            <a href="{{ url('/dashboard') }}#buat-postingan"
-               class="mx-auto mt-8 inline-flex items-center gap-2 rounded-full bg-navy px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-navy-dark focus:outline-none focus:ring-2 focus:ring-navy focus:ring-offset-2">
-                <x-icon name="plus" class="h-4 w-4" />
-                Make A Post
-            </a>
-        @endunless
-    </div>
-</aside>
+<nav class="hidden lg:block bg-surface min-h-screen flex-none" style="width:360px;padding:25px 8px 0">
+    <x-sidebar-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')" icon="home">
+        Beranda
+    </x-sidebar-link>
+    <x-sidebar-link href="#" icon="search">
+        Pencarian
+    </x-sidebar-link>
+    <x-sidebar-link href="{{ route('percakapan.index') }}" :active="request()->routeIs('percakapan.*')" icon="message">
+        Pesan
+    </x-sidebar-link>
+    <x-sidebar-link href="{{ route('profil.show') }}" :active="request()->routeIs('profil.*')" icon="user">
+        Profil
+    </x-sidebar-link>
+
+    {{-- Make A Post --}}
+    <a href="{{ route('postingan.create') }}"
+       class="flex items-center gap-[13px] text-nav text-white bg-navy rounded-pill no-underline"
+       style="width:245px;height:43px;margin:92px 0 0 35px;padding-left:40px">
+        <x-icon name="plus-circle" class="w-[18px] h-[18px]" />
+        Make A Post
+    </a>
+</nav>

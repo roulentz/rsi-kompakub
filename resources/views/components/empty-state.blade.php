@@ -1,12 +1,24 @@
-@props(['title', 'icon' => 'users'])
+{{-- resources/views/components/empty-state.blade.php --}}
+{{--
+    Kondisi kosong (empty state).
+    Props:
+    - $icon  : string — nama ikon
+    - $title : string
+    - $text  : string
+--}}
+@props([
+    'icon'  => 'users',
+    'title' => 'Belum ada data',
+    'text'  => '',
+])
 
-{{-- Tampilan kosong seperti "Belum ada postingan" di desain. Deskripsi lewat slot. --}}
-<div {{ $attributes->merge(['class' => 'kub-card flex flex-col items-center justify-center py-12 text-center']) }}>
-    <span class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-surface-tint text-navy">
-        <x-icon :name="$icon" class="h-6 w-6" />
-    </span>
-    <p class="text-sm font-semibold text-navy-deep">{{ $title }}</p>
-    @if (trim($slot))
-        <p class="mt-1 max-w-sm text-xs text-gray-500">{{ $slot }}</p>
+<section class="kub-box kub-empty">
+    <div class="kub-empty-icon">
+        <x-icon :name="$icon" class="w-4 h-4" />
+    </div>
+    <h3 class="kub-empty-title">{{ $title }}</h3>
+    @if($text)
+        <p class="kub-empty-text">{{ $text }}</p>
     @endif
-</div>
+    {{ $slot }}
+</section>
