@@ -37,4 +37,14 @@ class Notifikasi extends Model
             'id_profil'
         );
     }
+
+    // Kirim notifikasi ke satu profil (belum dibaca)
+    public static function kirim(int $idPenerima, string $tipe, string $pesan): self
+    {
+        return self::create([
+            'id_penerima' => $idPenerima,
+            'tipe' => $tipe,
+            'pesan' => $pesan,
+        ]);
+    }
 }
