@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Notifikasi;
 use App\Models\ProfilMahasiswa;
 use App\Models\Rekomendasi;
 use App\Models\RiwayatKolaborasi;
@@ -38,6 +39,8 @@ class RekomendasiController extends Controller
             'tanggal_dikirim' => now()->toDateString(),
             'status_laporan' => 'tidak_dilaporkan',
         ]);
+
+        Notifikasi::kirim($profil->id_profil, 'Rekomendasi Baru', $request->user()->name.' memberi Anda rekomendasi.');
 
         return back()->with('status', 'Rekomendasi terkirim.');
     }
