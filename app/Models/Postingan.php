@@ -51,6 +51,12 @@ class Postingan extends Model
         );
     }
 
+    // Slot terisi = pembuat postingan + pelamar yang diterima (sama seperti UI03)
+    public function slotTerisi(): int
+    {
+        return 1 + $this->lamaran()->where('status', 'Diterima')->count();
+    }
+
     // PCT-PC01: profil yang skill-nya cocok dengan tag_skill (maksimal $batas profil)
     public function rekomendasiKandidat(int $batas = 10): Collection
     {
