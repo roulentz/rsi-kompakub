@@ -9,11 +9,25 @@
             <x-input-error :messages="$errors->get('name')" class="mt-2" />
         </div>
 
+        <!-- Tanggal Lahir -->
+        <div class="mt-4">
+            <x-input-label for="tanggal_lahir" :value="__('Tanggal Lahir')" />
+            <x-text-input id="tanggal_lahir" class="block mt-1 w-full" type="date" name="tanggal_lahir" :value="old('tanggal_lahir')" required autocomplete="bday" />
+            <x-input-error :messages="$errors->get('tanggal_lahir')" class="mt-2" />
+        </div>
+
         <!-- Email Address -->
         <div class="mt-4">
             <x-input-label for="email" :value="__('Email')" />
             <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        </div>
+
+        <!-- No Telepon -->
+        <div class="mt-4">
+            <x-input-label for="no_telepon" :value="__('No Telepon')" />
+            <x-text-input id="no_telepon" class="block mt-1 w-full" type="text" name="no_telepon" :value="old('no_telepon')" required autocomplete="tel" />
+            <x-input-error :messages="$errors->get('no_telepon')" class="mt-2" />
         </div>
 
         <!-- Password -->
