@@ -1,38 +1,66 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Beranda
-        </h2>
-    </x-slot>
-
-    <div class="py-6 max-w-4xl mx-auto px-4">
-
-        {{-- Filter Kategori --}}
-        <div class="flex gap-2 mb-6">
-            @foreach(['Semua', 'Cari Tim', 'Info Lomba'] as $kategori)
-                <a href="?kategori={{ $kategori }}"
-                   class="px-4 py-2 rounded-full text-sm font-medium
-                          {{ $filter === $kategori ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
-                    {{ $kategori }}
-                </a>
-            @endforeach
+<x-guest-layout>
+    <div class="space-y-6">
+        <div>
+            <h2 class="text-2xl font-bold text-navy">Lengkapi Profil Anda</h2>
+            <p class="text-sm text-muted mt-1">
+                Langkah awal untuk memulai kolaborasi di KompakUB.
+            </p>
         </div>
 
-        {{-- Daftar Postingan --}}
-        <div class="space-y-4">
-            @forelse($postingan as $post)
-                <div class="bg-white rounded-lg shadow p-4">
-                    <span class="text-xs font-semibold text-blue-600 uppercase">{{ $post->kategori }}</span>
-                    <h3 class="text-lg font-semibold mt-1">{{ $post->judul ?? 'Postingan' }}</h3>
-                    <p class="text-gray-600 text-sm mt-1 line-clamp-2">{{ $post->isi }}</p>
-                    <a href="/postingan/{{ $post->id }}" class="text-blue-500 text-sm mt-2 inline-block hover:underline">
-                        Lihat detail →
-                    </a>
+        @if ($errors->any())
+            <div class="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-xs space-y-1">
+                @foreach ($errors->all() as $error)
+                    <p>{{ $error }}</p>
+                @endforeach
+            </div>
+        @endif
+
+        <form action="{{ route('onboarding.proses') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
+            @csrf
+
+            {{-- Minat / Interest --}}
+            <div>
+                <x-input-label for="interest" value="Minat / Bidang Ketertarikan" />
+                <x-text-input id="interest" name="interest" type="text" class="mt-1 block w-full"
+                    placeholder="Contoh: UI/UX, Web Development, Data Science"
+                    value="{{ old('interest') }}" />
+            </div>
+
+            {{-- Pilihan Skill --}}
+            <div>
+                <x-input-label value="Skill yang Dikuasai" />
+                <div class="mt-2 max-h-48 overflow-y-auto border border-gray-100 rounded-lg p-3 space-y-2 bg-surface">
+                    @forelse($skills as $skill)
+                        <label class="flex items-center gap-2 text-sm text-navy cursor-pointer">
+                            <input type="checkbox" name="skills[]" value="{{ $skill->id_skill }}"
+                                class="rounded border-gray-300 text-brand focus:ring-brand"
+                                {{ in_array($skill->id_skill, old('skills', [])) ? 'checked' : '' }}>
+                            <span>{{ $skill->nama_skill }}</span>
+                        </label>
+                    @empty
+                        <p class="text-xs text-muted">Belum ada daftar skill yang tersedia.</p>
+                    @endforelse
                 </div>
-            @empty
-                <p class="text-gray-500 text-center py-8">Belum ada postingan untuk kategori ini.</p>
-            @endforelse
-        </div>
+            </div>
 
+            {{-- Upload Portofolio --}}
+            <div>
+                <x-input-label for="halaman" value="Unggah Portofolio (Opsional, JPG/PNG maks 5MB)" />
+                <input id="halaman" name="halaman[]" type="file" multiple accept="image/png,image/jpeg"
+                    class="mt-1 block w-full text-xs text-muted file:mr-4 file:py-2 file:px-4 file:rounded-pill file:border-0 file:text-xs file:font-semibold file:bg-lavender file:text-navy hover:file:bg-brand hover:file:text-white file:cursor-pointer" />
+            </div>
+
+            {{-- Tombol Aksi --}}
+            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                <button type="submit" name="aksi" value="lewati"
+                    class="text-xs text-muted hover:text-navy underline">
+                    Lewati langkah ini
+                </button>
+
+                <x-primary-button name="aksi" value="lengkapi">
+                    Simpan & Lanjut ke Dashboard
+                </x-primary-button>
+            </div>
+        </form>
     </div>
-</x-app-layout>
+</x-guest-layout>

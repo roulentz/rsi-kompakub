@@ -6,21 +6,21 @@
 --}}
 @php($admin = Auth::user()->role === 'admin')
 <header x-data="{ open: false }" class="sticky top-0 z-40 bg-navy text-white shadow-sm">
-    <div class="mx-auto flex h-14 max-w-[1440px] items-center gap-3 px-4 sm:px-6">
+    <div class="mx-auto flex h-14 max-w-[1440px] items-center gap-3 px-4 sm:px-6 lg:h-[85px] lg:pl-0 lg:pr-[25px]">
         <!-- Logo -->
-        <a href="{{ url('/dashboard') }}" class="shrink-0 lg:w-48">
-            <x-brand class="text-lg sm:text-xl" />
+        <a href="{{ url('/dashboard') }}" class="shrink-0 lg:w-[271px] lg:pl-[60px] xl:w-[411px] xl:pl-[95px]">
+            <x-brand class="text-xl font-extrabold text-lavender lg:text-[29px]" />
         </a>
 
         <!-- Cari -->
         @unless ($admin)
-            <form method="GET" action="{{ url('/search') }}" role="search" class="mx-auto min-w-0 flex-1 sm:max-w-xl">
+            <form method="GET" action="{{ url('/search') }}" role="search" class="mx-auto min-w-0 flex-1 sm:max-w-[617px] lg:mx-0 lg:mr-auto">
                 <label for="cari-global" class="sr-only">Cari</label>
-                <div class="flex items-center gap-2 rounded-full border border-white/40 bg-white/10 px-4 py-1.5 focus-within:border-brand focus-within:bg-white/15">
-                    <x-icon name="search" class="h-4 w-4 shrink-0 text-white/80" />
+                <div class="flex h-[37px] items-center gap-[21px] rounded-full border border-white bg-lavender/20 pl-[21px] pr-4 focus-within:bg-lavender/30">
+                    <x-icon name="search" class="h-[18px] w-[18px] shrink-0 text-white" />
                     <input id="cari-global" type="search" name="q" value="{{ request('q') }}"
                            placeholder="Cari tim, rekan, informasi lomba ..."
-                           class="w-full min-w-0 border-0 bg-transparent p-0 text-xs text-white placeholder-white/70 focus:ring-0" />
+                           class="w-full min-w-0 border-0 bg-transparent p-0 text-sm text-white placeholder-white focus:ring-0" />
                 </div>
             </form>
         @else
@@ -33,7 +33,7 @@
                 <a href="{{ url('/notifikasi') }}"
                    class="rounded-full p-2 transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-brand"
                    aria-label="Notifikasi">
-                    <x-icon name="bell" class="h-5 w-5" />
+                    <x-icon name="bell" class="h-[29px] w-[29px]" />
                 </a>
             @endunless
 
@@ -42,7 +42,7 @@
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="flex items-center rounded-full p-1 transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-brand" aria-label="Menu akun">
-                            <x-avatar :user="Auth::user()" size="h-8 w-8" />
+                            <x-avatar :user="Auth::user()" size="h-[37px] w-[37px] !border-[3px] border-lavender" />
                         </button>
                     </x-slot>
 
