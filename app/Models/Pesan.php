@@ -8,7 +8,7 @@ class Pesan extends Model
 {
     protected $table = 'pesan';
 
-    public $timestamps = false;
+    public $timestamps = false;            
 
     protected $fillable = ['percakapan_id', 'pengirim_id', 'isi_pesan', 'waktu_kirim'];
 
