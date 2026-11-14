@@ -6,15 +6,12 @@ use App\Http\Controllers\PelamarController;
 use App\Http\Controllers\PostinganController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'onboarded'])->group(function () {
     // PCT-PC01: buat postingan cari tim
     Route::post('/postingan', [PostinganController::class, 'store'])->name('postingan.store');
 
     // PCT-PC01: rekomendasi kandidat untuk postingan cari tim
     Route::get('/postingan/{postingan}/rekomendasi', [PostinganController::class, 'rekomendasi'])->name('postingan.rekomendasi');
-
-    // PCT-PC05: tandai proyek selesai dan catat riwayat kolaborasi
-    Route::post('/postingan/{postingan}/selesai', [PostinganController::class, 'selesai'])->name('postingan.selesai');
 
     // PCT-PC06: kirim lamaran (route kontrak untuk tombol Lamar milik MZ)
     Route::post('/postingan/{postingan_id}/lamaran', [LamaranController::class, 'store'])->name('lamaran.store');
