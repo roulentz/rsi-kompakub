@@ -35,6 +35,9 @@ class ProfilController extends Controller
         return view('profil.show', [
             'profil' => $profil,
             'pemilik' => $pemilik,
+            // Postingan yang pernah dibuat pemilik profil (sama dengan yang tampil di Beranda).
+            'postingan' => $profil->postingan()->with(['pembuat.user', 'lamaran'])->latest()->limit(20)->get(),
+            'profilSaya' => $saya,
             'riwayat' => $profil->riwayat()->orderByDesc('tanggal_selesai')->get(),
             'rekomendasi' => $profil->rekomendasiDiterima()->with('pemberi.user')->orderByDesc('id_rekomendasi')->get(),
             'bolehRekomendasi' => $saya && ! $pemilik

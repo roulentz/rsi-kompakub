@@ -5,7 +5,7 @@
     Placeholder: kolom cari mengirim GET ke /search (halaman milik GP, belum ada).
 --}}
 @php($admin = Auth::user()->role === 'admin')
-<header x-data="{ open: false }" class="sticky top-0 z-40 bg-gradient-to-r from-navy via-navy to-navy-dark text-white shadow-md shadow-navy/20">
+<header x-data="{ open: false }" class="sticky top-0 z-40 bg-gradient-to-r from-navy via-navy to-navy-dark text-white shadow-lg shadow-navy/25 ring-1 ring-white/5">
     <div class="flex h-14 items-center gap-3 px-4 sm:px-6 lg:h-[85px] lg:pl-0 lg:pr-8">
         <!-- Logo -->
         <a href="{{ url('/dashboard') }}" class="shrink-0 lg:w-[260px] lg:pl-10 xl:w-[320px] xl:pl-14">

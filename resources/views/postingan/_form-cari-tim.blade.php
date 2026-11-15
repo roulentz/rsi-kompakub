@@ -13,7 +13,7 @@
 @endphp
 
 <x-modal name="buat-postingan" :show="$gagal" maxWidth="xl" focusable>
-    <form method="POST" action="{{ route('postingan.store') }}" class="bg-surface p-5" aria-label="Form Buat Postingan Cari Tim"
+    <form method="POST" action="{{ route('postingan.store') }}" enctype="multipart/form-data" class="bg-surface p-5" aria-label="Form Buat Postingan Cari Tim"
           x-data="{ dipilih: @js($skillLama), tersedia: @js($daftarSkill), pilih: '' }">
         @csrf
         <input type="hidden" name="_form" value="postingan">
@@ -68,6 +68,9 @@
 
             <textarea name="deskripsi" rows="4" maxlength="500" placeholder="Katakan sesuatu" aria-label="Katakan sesuatu"
                       class="block w-full resize-none rounded-lg border-0 bg-white px-4 py-2.5 text-xs text-navy placeholder:text-muted/70 focus:ring-2 focus:ring-brand">{{ $gagal ? old('deskripsi') : '' }}</textarea>
+
+            {{-- Foto opsional (poster lomba, dsb.) dengan pratinjau --}}
+            <x-unggah-gambar name="foto" bentuk="tombol" judul="Tambahkan Foto" :maks="2" :webp="true" />
         </div>
 
         @if ($gagal && (session('pesan_peringatan') || $errors->any()))

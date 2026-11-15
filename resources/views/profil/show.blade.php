@@ -73,6 +73,27 @@
             </div>
         </section>
 
+        {{-- Postingan pemilik profil --}}
+        <section aria-labelledby="judul-postingan">
+            <div class="mb-3 flex items-end justify-between gap-3 px-1">
+                <div>
+                    <h3 id="judul-postingan" class="kub-heading">Postingan</h3>
+                    <p class="text-xs text-gray-500">{{ $pemilik ? 'Yang pernah kamu bagikan di Beranda' : 'Yang pernah dibagikan di Beranda' }}</p>
+                </div>
+                <span class="kub-chip">{{ $postingan->count() }} postingan</span>
+            </div>
+
+            <div class="space-y-4">
+                @forelse ($postingan as $item)
+                    <x-post-card :item="$item" :profil="$profilSaya" />
+                @empty
+                    <x-empty-state title="Belum ada postingan" icon="chat">
+                        {{ $pemilik ? 'Postingan yang kamu buat di Beranda akan muncul di sini.' : 'Pengguna ini belum membagikan postingan.' }}
+                    </x-empty-state>
+                @endforelse
+            </div>
+        </section>
+
         {{-- Portofolio --}}
         <section class="kub-card">
             <div class="mb-4 flex items-center justify-between gap-3">

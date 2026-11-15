@@ -39,7 +39,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-canvas">
+        <div class="min-h-screen">
             @include('layouts.navigation', ['menu' => $menu])
 
             {{-- Sidebar menempel ke tepi kiri layar. Hanya isi tengah yang dibatasi lebarnya. --}}

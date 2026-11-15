@@ -12,7 +12,7 @@
 
 @if ($foto)
     <img src="{{ $foto }}" alt="Foto {{ $nama }}" loading="lazy"
-         {{ $attributes->merge(['class' => "inline-block shrink-0 rounded-full border-2 border-white bg-lavender object-cover shadow-sm {$size}"]) }}>
+         {{ $attributes->merge(['class' => "inline-block shrink-0 rounded-full border-2 border-white bg-lavender object-cover shadow-sm ring-1 ring-navy/10 {$size}"]) }}>
 @else
     <span {{ $attributes->merge(['class' => "inline-flex shrink-0 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-lavender to-white text-xs font-semibold text-navy shadow-sm {$size}"]) }}>
         {{ $inisial }}

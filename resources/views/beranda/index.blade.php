@@ -24,7 +24,9 @@
         {{-- Feed --}}
         <div class="space-y-4">
             @forelse ($postingan as $item)
-                <x-post-card :item="$item" :profil="$profil" />
+                <div class="kub-masuk" style="animation-delay: {{ min($loop->index, 6) * 60 }}ms">
+                    <x-post-card :item="$item" :profil="$profil" />
+                </div>
             @empty
                 <x-empty-state title="Belum ada postingan" icon="chat">
                     Belum ada postingan untuk kategori "{{ $kategoriAktif }}". Jadilah yang pertama membagikan postingan!
