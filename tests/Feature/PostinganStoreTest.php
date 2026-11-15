@@ -39,9 +39,9 @@ class PostinganStoreTest extends TestCase
     {
         $user = $this->buatUser();
         $r = $this->actingAs($user)->post('/postingan', $this->data(['jenisLomba' => 'x', 'jumlahAnggotaTerisi' => 1]));
-        $r->assertRedirect('/');
-        $r->assertSessionHas('status', 'Postingan berhasil diterbitkan');
         $p = Postingan::first();
+        $r->assertRedirect(route('postingan.show', $p->id_postingan));
+        $r->assertSessionHas('status', 'Postingan berhasil diterbitkan');
         $this->assertSame('Cari Tim', $p->kategori);
         $this->assertSame('Aktif', $p->status);
         $this->assertSame($user->profil->id_profil, $p->id_pembuat);
