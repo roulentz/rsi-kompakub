@@ -14,6 +14,12 @@ class ProfilPostinganTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutVite();
+    }
+
     private function buatUser(string $email): User
     {
         $user = User::create([

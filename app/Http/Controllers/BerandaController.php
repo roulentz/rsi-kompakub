@@ -28,7 +28,7 @@ class BerandaController extends Controller
         $kategoriAktif = $request->query('kategori');
 
         if ($kategoriAktif) {
-            $kategoriValid = ['Semua', 'Cari Tim', 'Info Lomba'];
+            $kategoriValid = ['Semua', 'Umum', 'Info Lomba', 'Cari Tim'];
             if (!in_array($kategoriAktif, $kategoriValid)) {
                 $kategoriAktif = 'Semua';
             }
@@ -39,6 +39,11 @@ class BerandaController extends Controller
             }
         } else {
             $kategoriAktif = $preferensi ? $preferensi->kategori_terakhir : 'Semua';
+
+            // Jaga-jaga bila nilai tersimpan tidak dikenal lagi.
+            if (! in_array($kategoriAktif, ['Semua', 'Umum', 'Info Lomba', 'Cari Tim'])) {
+                $kategoriAktif = 'Semua';
+            }
         }
 
         // Query postingan
@@ -46,7 +51,8 @@ class BerandaController extends Controller
             ->orderByDesc('created_at');
 
         if ($kategoriAktif !== 'Semua') {
-            $query->where('kategori', $kategoriAktif);
+            // Tab "Umum" di layar = kategori "Biasa" di database.
+            $query->where('kategori', $kategoriAktif === 'Umum' ? 'Biasa' : $kategoriAktif);
         }
 
         $postingan = $query->paginate(10)->withQueryString();

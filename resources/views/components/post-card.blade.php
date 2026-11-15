@@ -28,7 +28,12 @@
         </div>
 
         @if ($cariTim || $infoLomba)
-            <x-chip :tone="$cariTim ? 'brand' : 'navy'" class="shrink-0">{{ $item->kategori }}</x-chip>
+            <div class="flex shrink-0 items-center gap-1.5">
+                @if ($cariTim && $item->status === 'Selesai')
+                    <x-chip class="!bg-emerald-50 !text-emerald-700">Selesai</x-chip>
+                @endif
+                <x-chip :tone="$cariTim ? 'brand' : 'navy'">{{ $item->kategori }}</x-chip>
+            </div>
         @endif
     </header>
 

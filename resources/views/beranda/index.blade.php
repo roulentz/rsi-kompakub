@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-2xl font-bold text-navy-deep">Beranda Kolaborasi</h2>
+        <h2 class="text-2xl font-bold text-navy-deep">Beranda</h2>
         <p class="kub-muted mt-0.5">Temukan tim, info lomba, dan kolaborasi terbaru di kampus.</p>
     </x-slot>
 
@@ -13,7 +13,7 @@
         {{-- Filter kategori (EFP-PC02) --}}
         <nav class="overflow-x-auto pb-1" aria-label="Filter kategori">
             <div class="kub-filter">
-                @foreach (['Semua', 'Cari Tim', 'Info Lomba'] as $kat)
+                @foreach (['Semua', 'Umum', 'Info Lomba', 'Cari Tim'] as $kat)
                     <a href="{{ route('dashboard', ['kategori' => $kat]) }}"
                        class="kub-filter-item whitespace-nowrap {{ $kategoriAktif === $kat ? 'aktif' : '' }}"
                        @if ($kategoriAktif === $kat) aria-current="page" @endif>{{ $kat }}</a>
