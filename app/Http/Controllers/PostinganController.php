@@ -21,7 +21,7 @@ class PostinganController extends Controller
             'kategori' => 'Cari Tim',
         ]);
 
-        return redirect('/')->with([
+        return redirect()->route('postingan.show', $postingan->id_postingan)->with([
             'status' => 'Postingan berhasil diterbitkan',
             'id_postingan' => $postingan->id_postingan,
         ]);

@@ -8,12 +8,12 @@
         </nav>
 
         @unless (Auth::user()->role === 'admin')
-            {{-- Placeholder: arahkan ke Beranda. Saat form buat postingan jadi modal, ganti href dengan pemicunya. --}}
-            <a href="{{ url('/dashboard') }}#buat-postingan"
-               class="mx-auto mt-[92px] inline-flex xl:ml-[35px] h-[43px] w-[245px] max-w-full items-center justify-center gap-[13px] rounded-full bg-navy text-lg font-medium text-white shadow-sm transition hover:bg-navy-dark focus:outline-none focus:ring-2 focus:ring-brand xl:text-[21px]">
+            {{-- Membuka dialog Make A Post (postingan/_form-cari-tim, dipasang di layouts/app) --}}
+            <button type="button" x-data x-on:click="$dispatch('open-modal', 'buat-postingan')"
+                    class="mx-auto mt-[92px] inline-flex xl:ml-[35px] h-[43px] w-[245px] max-w-full items-center justify-center gap-[13px] rounded-full bg-navy text-lg font-medium text-white shadow-sm transition hover:bg-navy-dark focus:outline-none focus:ring-2 focus:ring-brand xl:text-[21px]">
                 <x-icon name="plus" class="h-[18px] w-[18px]" />
                 Make A Post
-            </a>
+            </button>
         @endunless
     </div>
 </aside>

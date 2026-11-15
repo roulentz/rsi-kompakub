@@ -70,5 +70,10 @@
                 </aside>
             </div>
         </div>
+
+        {{-- Dialog Make A Post (milik SH): hanya untuk mahasiswa yang sudah punya profil --}}
+        @if (! $admin && Auth::user()->profil)
+            @include('postingan._form-cari-tim')
+        @endif
     </body>
 </html>
