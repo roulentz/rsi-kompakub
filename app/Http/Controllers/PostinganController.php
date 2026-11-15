@@ -15,10 +15,13 @@ class PostinganController extends Controller
     // PCT-PC01: simpan postingan cari tim lalu terbitkan
     public function store(StorePostinganRequest $request): RedirectResponse
     {
+        $data = collect($request->validated())->except('foto')->all();
+
         $postingan = Postingan::create([
-            ...$request->validated(),
+            ...$data,
             'id_pembuat' => $request->user()->profil->id_profil,
             'kategori' => 'Cari Tim',
+            'foto' => $request->hasFile('foto') ? $request->file('foto')->store('postingan', 'public') : null,
         ]);
 
         return redirect()->route('postingan.show', $postingan->id_postingan)->with([

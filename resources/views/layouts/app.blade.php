@@ -39,39 +39,42 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-white">
+        <div class="min-h-screen bg-canvas">
             @include('layouts.navigation', ['menu' => $menu])
 
-            <div class="mx-auto flex w-full max-w-[1440px] xl:pl-[11px]">
+            {{-- Sidebar menempel ke tepi kiri layar. Hanya isi tengah yang dibatasi lebarnya. --}}
+            <div class="flex">
                 @include('layouts.sidebar', ['menu' => $menu])
 
-                <div class="min-w-0 flex-1">
-                    @isset($header)
-                        <header class="border-b border-gray-100 bg-white">
-                            <div class="px-4 py-4 sm:px-6 lg:px-8">
-                                {{ $header }}
+                <div class="flex min-w-0 flex-1 justify-center">
+                    <div class="flex w-full max-w-[1180px]">
+                        <div class="min-w-0 flex-1">
+                            @isset($header)
+                                <header class="px-4 pb-1 pt-6 sm:px-6 lg:px-8">
+                                    {{ $header }}
+                                </header>
+                            @endisset
+
+                            <main class="px-0 pb-12 pt-4">
+                                {{ $slot }}
+                            </main>
+                        </div>
+
+                        <aside class="hidden w-[279px] shrink-0 pr-4 pt-[25px] xl:ml-4 xl:block">
+                            <div class="sticky top-[110px]">
+                                @isset($aside)
+                                    {{ $aside }}
+                                @else
+                                    <x-panel-pesan />
+                                @endisset
                             </div>
-                        </header>
-                    @endisset
-
-                    <main class="px-0 pb-10">
-                        {{ $slot }}
-                    </main>
-                </div>
-
-                <aside class="hidden w-[279px] shrink-0 pr-4 pt-[25px] xl:ml-4 xl:block 2xl:ml-10">
-                    <div class="sticky top-[110px]">
-                        @isset($aside)
-                            {{ $aside }}
-                        @else
-                            <x-panel-pesan />
-                        @endisset
+                        </aside>
                     </div>
-                </aside>
+                </div>
             </div>
         </div>
 
-        {{-- Dialog Make A Post (milik SH): hanya untuk mahasiswa yang sudah punya profil --}}
+        {{-- Dialog Make A Post Cari Tim (milik SH): dibuka dari pilihan "Cari Tim" di komposer Beranda --}}
         @if (! $admin && Auth::user()->profil)
             @include('postingan._form-cari-tim')
         @endif

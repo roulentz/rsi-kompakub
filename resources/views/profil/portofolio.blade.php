@@ -1,51 +1,78 @@
 @php use Illuminate\Support\Facades\Storage; @endphp
 <x-app-layout>
-    <x-slot name="header"><h2 class="font-semibold text-xl text-gray-800">Kelola Portofolio</h2></x-slot>
+    <x-slot name="header">
+        <a href="{{ route('profil.show') }}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-navy">
+            <x-icon name="arrow-left" class="h-4 w-4" /> Profil
+        </a>
+        <h2 class="mt-1 text-2xl font-bold text-navy-deep">Pengaturan Portofolio Mahasiswa</h2>
+        <p class="kub-muted mt-0.5">Dokumentasikan hasil karya, studi kasus, dan proposal kompetisi dalam format slide ringkas.</p>
+    </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <x-flash />
+    <div class="mx-auto w-full max-w-3xl space-y-5 px-4 sm:px-6 lg:px-8">
+        <x-flash />
 
-            <div class="bg-white p-6 shadow-sm sm:rounded-lg">
-                <p class="text-sm text-gray-500 mb-3">{{ $halaman->count() }} dari {{ $maks }} halaman terpakai.</p>
+        <section class="kub-card">
+            <div class="mb-2 flex items-center justify-between text-sm">
+                <h3 class="kub-heading">Halaman Slide</h3>
+                <span class="text-gray-500">{{ $halaman->count() }} dari {{ $maks }} halaman terpakai</span>
+            </div>
+            <div class="mb-4 h-2 overflow-hidden rounded-full bg-surface-tint">
+                <span class="block h-full rounded-full bg-brand" style="width: {{ min(100, $halaman->count() / max($maks, 1) * 100) }}%"></span>
+            </div>
+
+            <div class="space-y-2">
                 @forelse ($halaman as $h)
-                    <div class="flex items-center gap-3 py-2 border-b last:border-0">
-                        <span class="w-6 text-sm text-gray-500">{{ $h->urutan_halaman }}</span>
-                        <img src="{{ Storage::disk('public')->url($h->konten) }}" class="h-16 w-24 object-cover rounded" alt="Halaman {{ $h->urutan_halaman }}">
-                        <div class="flex-1 text-xs text-gray-500">
+                    <div class="flex items-center gap-3 rounded-xl bg-surface-tint/70 p-2.5">
+                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-sm font-bold text-navy shadow-sm">{{ $h->urutan_halaman }}</span>
+                        <img src="{{ Storage::disk('public')->url($h->konten) }}" alt="Halaman {{ $h->urutan_halaman }}" loading="lazy"
+                             class="h-16 w-24 shrink-0 rounded-lg bg-white object-cover shadow-sm">
+                        <div class="min-w-0 flex-1 text-xs text-gray-500">
                             {{ $h->ukuran_file }} MB
-                            @if ($h->tautan_eksternal)<br><a href="{{ $h->tautan_eksternal }}" target="_blank" rel="noopener" class="underline">{{ $h->tautan_eksternal }}</a>@endif
+                            @if ($h->tautan_eksternal)
+                                <a href="{{ $h->tautan_eksternal }}" target="_blank" rel="noopener" class="kub-link block truncate">{{ $h->tautan_eksternal }}</a>
+                            @endif
                         </div>
-                        @foreach (['naik' => '↑', 'turun' => '↓'] as $arah => $ikon)
-                            <form method="POST" action="{{ route('portofolio.geser', $h) }}">@csrf @method('PATCH')
+
+                        @foreach (['naik' => 'arrow-up', 'turun' => 'arrow-down'] as $arah => $ikon)
+                            <form method="POST" action="{{ route('portofolio.geser', $h) }}">
+                                @csrf @method('PATCH')
                                 <input type="hidden" name="arah" value="{{ $arah }}">
-                                <button class="px-2 py-1 border rounded text-sm">{{ $ikon }}</button>
+                                <button class="flex h-9 w-9 items-center justify-center rounded-full bg-white text-navy shadow-sm transition hover:bg-lavender" aria-label="Geser {{ $arah }}">
+                                    <x-icon :name="$ikon" class="h-4 w-4" />
+                                </button>
                             </form>
                         @endforeach
-                        <form method="POST" action="{{ route('portofolio.destroy', $h) }}" onsubmit="return confirm('Hapus halaman ini?')">@csrf @method('DELETE')
-                            <button class="px-2 py-1 border rounded text-sm text-red-600">Hapus</button>
+
+                        <form method="POST" action="{{ route('portofolio.destroy', $h) }}" onsubmit="return confirm('Hapus halaman ini?')">
+                            @csrf @method('DELETE')
+                            <button class="flex h-9 w-9 items-center justify-center rounded-full bg-white text-red-600 shadow-sm transition hover:bg-red-50" aria-label="Hapus halaman">
+                                <x-icon name="trash" class="h-4 w-4" />
+                            </button>
                         </form>
                     </div>
                 @empty
-                    <p class="text-sm text-gray-400">Belum ada halaman.</p>
+                    <x-empty-state title="Belum ada halaman" icon="image" class="!shadow-none !ring-0 bg-surface-tint/60 py-8">Unggah slide pertamamu di bawah.</x-empty-state>
                 @endforelse
             </div>
+        </section>
 
-            @if ($halaman->count() < $maks)
-                <form method="POST" action="{{ route('portofolio.store') }}" enctype="multipart/form-data" class="bg-white p-6 shadow-sm sm:rounded-lg space-y-3">
-                    @csrf
-                    <h3 class="font-semibold">Tambah halaman</h3>
-                    <input type="file" name="halaman" accept=".jpg,.jpeg,.png" required>
-                    <x-input-error :messages="$errors->get('halaman')" />
-                    <div>
-                        <x-text-input name="tautan_eksternal" class="block w-full" placeholder="Tautan eksternal (opsional), mis. https://github.com/..." :value="old('tautan_eksternal')" />
-                        <x-input-error :messages="$errors->get('tautan_eksternal')" class="mt-1" />
-                    </div>
-                    <x-primary-button>Unggah</x-primary-button>
-                </form>
-            @endif
+        @if ($halaman->count() < $maks)
+            <form method="POST" action="{{ route('portofolio.store') }}" enctype="multipart/form-data" class="kub-card space-y-4">
+                @csrf
+                <h3 class="kub-heading">Tambah Halaman Slide</h3>
 
-            <a href="{{ route('profil.show') }}" class="text-sm underline">&larr; Kembali ke profil</a>
-        </div>
+                <x-unggah-gambar name="halaman" :maks="5" judul="Unggah gambar slide" petunjuk="Klik atau seret gambar ke sini. JPG atau PNG, maksimal 5 MB.">
+                    <x-input-error :messages="$errors->get('halaman')" class="mt-2" />
+                </x-unggah-gambar>
+
+                <div>
+                    <x-input-label for="tautan_eksternal" value="Tautan eksternal (opsional)" />
+                    <x-text-input id="tautan_eksternal" name="tautan_eksternal" :value="old('tautan_eksternal')" placeholder="mis. https://figma.com/... atau https://github.com/..." />
+                    <x-input-error :messages="$errors->get('tautan_eksternal')" class="mt-1" />
+                </div>
+
+                <x-primary-button><x-icon name="upload" class="h-4 w-4" /> Unggah Halaman</x-primary-button>
+            </form>
+        @endif
     </div>
 </x-app-layout>

@@ -21,6 +21,7 @@ class StorePostinganRequest extends FormRequest
             'jumlah_anggota' => ['required', 'integer', 'between:1,10'],
             'tag_skill' => ['required', 'string'],
             'deskripsi' => ['required', 'string', 'max:500'],
+            'foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
         ];
     }
 
@@ -33,6 +34,16 @@ class StorePostinganRequest extends FormRequest
             'jumlah_anggota' => 'Jumlah anggota',
             'tag_skill' => 'Skill Needed',
             'deskripsi' => 'Katakan sesuatu',
+            'foto' => 'Foto',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'foto.image' => 'File harus berupa gambar.',
+            'foto.mimes' => 'Foto harus berformat JPG, PNG, atau WebP.',
+            'foto.max' => 'Ukuran foto maksimal 2 MB.',
         ];
     }
 
