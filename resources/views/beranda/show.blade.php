@@ -90,10 +90,9 @@
 
             <div class="mt-4 flex flex-wrap items-center gap-2">
                 @if ($bisaLamar)
-                    <form method="POST" action="{{ route('lamaran.store', $postingan->id_postingan) }}">
-                        @csrf
-                        <button type="submit" class="rounded-full bg-brand px-5 py-1.5 text-sm font-medium text-white transition hover:bg-brand-dark">Apply</button>
-                    </form>
+                    <button type="button" x-data x-on:click="$dispatch('open-modal', 'konfirmasi-lamaran-{{ $postingan->id_postingan }}')"
+                            class="rounded-full bg-brand px-5 py-1.5 text-sm font-medium text-white transition hover:bg-brand-dark">Apply</button>
+                    @include('lamaran._konfirmasi')
                 @elseif ($sudahMelamar)
                     <span class="text-xs text-muted">Lamaranmu:</span>
                     @include('pelamar._status', ['status' => $statusLamaran])
