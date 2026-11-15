@@ -1,66 +1,67 @@
-<x-guest-layout>
-    <div class="space-y-6">
-        <div>
-            <h2 class="text-2xl font-bold text-navy">Lengkapi Profil Anda</h2>
-            <p class="text-sm text-muted mt-1">
-                Langkah awal untuk memulai kolaborasi di KompakUB.
-            </p>
-        </div>
-
-        @if ($errors->any())
-            <div class="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-xs space-y-1">
-                @foreach ($errors->all() as $error)
-                    <p>{{ $error }}</p>
-                @endforeach
-            </div>
-        @endif
-
-        <form action="{{ route('onboarding.proses') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
+<x-layout-fokus>
+    <div x-data="{ langkah: {{ $errors->any() ? 1 : 0 }}, total: 3 }">
+        <form action="{{ route('onboarding.proses') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
-            {{-- Minat / Interest --}}
-            <div>
-                <x-input-label for="interest" value="Minat / Bidang Ketertarikan" />
-                <x-text-input id="interest" name="interest" type="text" class="mt-1 block w-full"
-                    placeholder="Contoh: UI/UX, Web Development, Data Science"
-                    value="{{ old('interest') }}" />
-            </div>
-
-            {{-- Pilihan Skill --}}
-            <div>
-                <x-input-label value="Skill yang Dikuasai" />
-                <div class="mt-2 max-h-48 overflow-y-auto border border-gray-100 rounded-lg p-3 space-y-2 bg-surface">
-                    @forelse($skills as $skill)
-                        <label class="flex items-center gap-2 text-sm text-navy cursor-pointer">
-                            <input type="checkbox" name="skills[]" value="{{ $skill->id_skill }}"
-                                class="rounded border-gray-300 text-brand focus:ring-brand"
-                                {{ in_array($skill->id_skill, old('skills', [])) ? 'checked' : '' }}>
-                            <span>{{ $skill->nama_skill }}</span>
-                        </label>
-                    @empty
-                        <p class="text-xs text-muted">Belum ada daftar skill yang tersedia.</p>
-                    @endforelse
+            {{-- Pertanyaan awal --}}
+            <section x-show="langkah === 0" class="kub-hero rounded-3xl p-8 shadow-angkat sm:p-12">
+                <div class="relative z-10 flex min-h-[18rem] flex-col justify-end">
+                    <h1 class="max-w-md text-3xl font-bold leading-tight sm:text-5xl">Lengkapi Profilmu Sekarang?</h1>
+                    <p class="mt-3 max-w-md text-sm text-white/70">Profil yang lengkap membantu rekan tim menemukanmu. Kamu bisa mengubahnya kapan saja.</p>
+                    <div class="mt-7 flex gap-3">
+                        <button type="submit" name="aksi" value="lewati" class="kub-btn border border-white/30 text-white hover:bg-white/10">Lewati</button>
+                        <button type="button" @click="langkah = 1" class="kub-btn kub-btn-brand min-w-32">Ya</button>
+                    </div>
                 </div>
-            </div>
+            </section>
 
-            {{-- Upload Portofolio --}}
-            <div>
-                <x-input-label for="halaman" value="Unggah Portofolio (Opsional, JPG/PNG maks 5MB)" />
-                <input id="halaman" name="halaman[]" type="file" multiple accept="image/png,image/jpeg"
-                    class="mt-1 block w-full text-xs text-muted file:mr-4 file:py-2 file:px-4 file:rounded-pill file:border-0 file:text-xs file:font-semibold file:bg-lavender file:text-navy hover:file:bg-brand hover:file:text-white file:cursor-pointer" />
-            </div>
+            {{-- Langkah 1 sampai 3 --}}
+            <section x-show="langkah > 0" x-cloak class="kub-card !p-6 sm:!p-8">
+                @if ($errors->any())
+                    <div class="mb-5 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-200" role="alert">
+                        <ul class="list-inside list-disc">
+                            @foreach ($errors->all() as $galat)
+                                <li>{{ $galat }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
-            {{-- Tombol Aksi --}}
-            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                <button type="submit" name="aksi" value="lewati"
-                    class="text-xs text-muted hover:text-navy underline">
-                    Lewati langkah ini
-                </button>
+                <div class="grid grid-cols-3 gap-2" aria-hidden="true">
+                    @foreach ([1, 2, 3] as $n)
+                        <div class="h-1.5 rounded-full transition-colors" :class="langkah >= {{ $n }} ? 'bg-brand' : 'bg-surface-tint'"></div>
+                    @endforeach
+                </div>
+                <p class="mt-5 text-center text-xs font-semibold uppercase tracking-wider text-brand-dark">Langkah <span x-text="langkah"></span> dari 3</p>
 
-                <x-primary-button name="aksi" value="lengkapi">
-                    Simpan & Lanjut ke Dashboard
-                </x-primary-button>
-            </div>
+                <div x-show="langkah === 1" class="mt-2">
+                    <h2 class="text-center text-2xl font-bold text-navy-deep">Keahlian Apa yang Kamu Bawa ke Tim?</h2>
+                    <p class="mb-5 mt-1 text-center text-sm text-gray-500">Pilih minimal 1 kemampuan teknis atau non-teknis agar rekan tim menemukanmu.</p>
+                    <x-pilih-skill :skills="$skills" :dipilih="old('skills', [])" />
+                </div>
+
+                <div x-show="langkah === 2" x-cloak class="mt-2">
+                    <h2 class="text-center text-2xl font-bold text-navy-deep">Apa Minat Kolaborasimu?</h2>
+                    <p class="mb-5 mt-1 text-center text-sm text-gray-500">Tulis topik atau jenis proyek yang ingin kamu kerjakan.</p>
+                    <x-input-label for="interest" value="Minat / Bidang Ketertarikan" />
+                    <x-text-input id="interest" name="interest" maxlength="255" :value="old('interest')" placeholder="Contoh: UI/UX, Web Development, Data Science" />
+                </div>
+
+                <div x-show="langkah === 3" x-cloak class="mt-2">
+                    <h2 class="text-center text-2xl font-bold text-navy-deep">Punya Portofolio? (Opsional)</h2>
+                    <p class="mb-5 mt-1 text-center text-sm text-gray-500">Maksimal 20 halaman, JPG atau PNG, 5 MB per halaman. Gambar yang dipilih langsung terlihat di bawah.</p>
+                    <x-unggah-gambar name="halaman[]" :multiple="true" :maks="5" :maks-file="20" judul="Pilih halaman portofolio" />
+                </div>
+
+                <div class="mt-8 flex items-center justify-between gap-3">
+                    <button type="button" @click="langkah--" class="kub-btn kub-btn-soft kub-btn-sm"><x-icon name="arrow-left" class="h-4 w-4" /> Kembali</button>
+                    <div class="flex items-center gap-3">
+                        <button type="submit" name="aksi" value="lewati" class="text-xs font-medium text-muted underline hover:text-navy">Lewati untuk sekarang</button>
+                        <button type="button" x-show="langkah < total" @click="langkah++" class="kub-btn kub-btn-brand kub-btn-sm">Lanjut <x-icon name="arrow-right" class="h-4 w-4" /></button>
+                        <button type="submit" name="aksi" value="lengkapi" x-show="langkah === total" x-cloak class="kub-btn kub-btn-navy kub-btn-sm">Simpan & Lanjut ke Beranda</button>
+                    </div>
+                </div>
+            </section>
         </form>
     </div>
-</x-guest-layout>
+</x-layout-fokus>

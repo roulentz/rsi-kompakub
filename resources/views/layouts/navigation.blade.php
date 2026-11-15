@@ -5,10 +5,10 @@
     Placeholder: kolom cari mengirim GET ke /search (halaman milik GP, belum ada).
 --}}
 @php($admin = Auth::user()->role === 'admin')
-<header x-data="{ open: false }" class="sticky top-0 z-40 bg-navy text-white shadow-sm">
-    <div class="mx-auto flex h-14 max-w-[1440px] items-center gap-3 px-4 sm:px-6 lg:h-[85px] lg:pl-0 lg:pr-[25px]">
+<header x-data="{ open: false }" class="sticky top-0 z-40 bg-gradient-to-r from-navy via-navy to-navy-dark text-white shadow-md shadow-navy/20">
+    <div class="flex h-14 items-center gap-3 px-4 sm:px-6 lg:h-[85px] lg:pl-0 lg:pr-8">
         <!-- Logo -->
-        <a href="{{ url('/dashboard') }}" class="shrink-0 lg:w-[271px] lg:pl-[60px] xl:w-[411px] xl:pl-[95px]">
+        <a href="{{ url('/dashboard') }}" class="shrink-0 lg:w-[260px] lg:pl-10 xl:w-[320px] xl:pl-14">
             <x-brand class="text-xl font-extrabold text-lavender lg:text-[29px]" />
         </a>
 
@@ -16,7 +16,7 @@
         @unless ($admin)
             <form method="GET" action="{{ url('/search') }}" role="search" class="mx-auto min-w-0 flex-1 sm:max-w-[617px] lg:mx-0 lg:mr-auto">
                 <label for="cari-global" class="sr-only">Cari</label>
-                <div class="flex h-[37px] items-center gap-[21px] rounded-full border border-white bg-lavender/20 pl-[21px] pr-4 focus-within:bg-lavender/30">
+                <div class="flex h-[37px] items-center gap-[21px] rounded-full border border-white/70 bg-white/10 pl-[21px] pr-4 backdrop-blur transition focus-within:border-brand focus-within:bg-white/20">
                     <x-icon name="search" class="h-[18px] w-[18px] shrink-0 text-white" />
                     <input id="cari-global" type="search" name="q" value="{{ request('q') }}"
                            placeholder="Cari tim, rekan, informasi lomba ..."
@@ -42,7 +42,7 @@
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="flex items-center rounded-full p-1 transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-brand" aria-label="Menu akun">
-                            <x-avatar :user="Auth::user()" size="h-[37px] w-[37px] !border-[3px] border-lavender" />
+                            <x-avatar :user="Auth::user()" size="h-[40px] w-[40px] !border-[3px] border-lavender text-sm" />
                         </button>
                     </x-slot>
 

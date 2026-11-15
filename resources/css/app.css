@@ -12,19 +12,39 @@
  */
 @layer base {
     body {
-        @apply bg-white text-navy-deep;
+        @apply bg-canvas text-navy-deep antialiased;
+    }
+
+    ::selection {
+        background: rgb(245 184 109 / 0.45);
+    }
+
+    a,
+    button,
+    summary {
+        @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2;
     }
 }
 
 @layer components {
-    /* Kartu abu-abu seperti kartu postingan dan pelamar di desain. */
+    /* Kartu putih yang timbul di atas latar canvas. */
     .kub-card {
-        @apply rounded-kub bg-surface p-4 sm:p-5;
+        @apply rounded-kub bg-white p-4 shadow-kartu ring-1 ring-navy/5 sm:p-5;
     }
 
-    /* Kartu putih dengan garis tipis, untuk isi form dan panel. */
+    /* Kartu bisa diklik atau disorot: naik sedikit saat disentuh. */
+    .kub-card-hover {
+        @apply transition duration-200 hover:-translate-y-0.5 hover:shadow-angkat;
+    }
+
+    /* Panel abu-abu lembut untuk blok di dalam kartu. */
+    .kub-soft {
+        @apply rounded-xl bg-surface-tint p-4;
+    }
+
+    /* Kartu putih dengan garis tipis (kompatibel dengan kode lama). */
     .kub-panel {
-        @apply rounded-kub border border-gray-100 bg-white p-4 shadow-sm sm:p-5;
+        @apply rounded-kub border border-gray-100 bg-white p-4 shadow-kartu sm:p-5;
     }
 
     /* Blok biru tua berisi info (Lomba, Tanggal, Slot, Skill). */
@@ -55,5 +75,83 @@
 
     .kub-link {
         @apply font-medium text-brand-dark underline-offset-2 hover:underline;
+    }
+
+    /* Tombol: pill, naik sedikit saat disentuh. Teks tombol oranye memakai biru tua agar terbaca. */
+    .kub-btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold shadow-sm transition duration-150 hover:-translate-y-px hover:shadow-md disabled:pointer-events-none disabled:opacity-50;
+    }
+    .kub-btn-brand {
+        @apply bg-brand text-navy-deep hover:bg-brand-dark;
+    }
+    .kub-btn-navy {
+        @apply bg-navy text-white hover:bg-navy-dark;
+    }
+    .kub-btn-soft {
+        @apply bg-surface-tint text-navy shadow-none hover:bg-lavender;
+    }
+    .kub-btn-outline {
+        @apply border border-navy/20 bg-white text-navy hover:bg-surface-tint;
+    }
+    .kub-btn-danger {
+        @apply bg-red-600 text-white hover:bg-red-700;
+    }
+    .kub-btn-sm {
+        @apply px-4 py-1.5 text-xs;
+    }
+
+    /* Formulir */
+    .kub-label {
+        @apply mb-1 block text-sm font-semibold text-navy;
+    }
+    .kub-input {
+        @apply block w-full rounded-xl border-gray-200 bg-surface-tint text-sm text-navy-deep placeholder-gray-400 shadow-none focus:border-brand focus:bg-white focus:ring-2 focus:ring-brand/40;
+    }
+    .kub-error {
+        @apply text-xs font-medium text-red-600;
+    }
+
+    /* Filter kategori beranda (Semua, Cari Tim, Info Lomba). */
+    .kub-filter {
+        @apply inline-flex gap-1 rounded-full bg-lavender/60 p-1;
+    }
+    .kub-filter-item {
+        @apply rounded-full px-4 py-1.5 text-sm font-semibold text-navy transition hover:bg-white/70;
+    }
+    .kub-filter-item.aktif {
+        @apply bg-brand text-navy-deep shadow-sm hover:bg-brand;
+    }
+
+    /* Area unggah gambar. */
+    .kub-dropzone {
+        @apply flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-navy/20 bg-surface-tint/70 px-6 py-8 text-center transition hover:border-brand hover:bg-brand-soft/40;
+    }
+    .kub-dropzone.seret {
+        @apply border-brand bg-brand-soft/60;
+    }
+
+    /* Panel biru tua dengan lingkaran lembut (banner profil dan sambutan onboarding). */
+    .kub-hero {
+        @apply relative overflow-hidden bg-gradient-to-br from-navy via-navy to-navy-dark text-white;
+    }
+    .kub-hero::before,
+    .kub-hero::after {
+        content: '';
+        position: absolute;
+        border-radius: 9999px;
+        background: rgb(255 255 255 / 0.06);
+        pointer-events: none;
+    }
+    .kub-hero::before {
+        top: -5rem;
+        left: -4rem;
+        height: 16rem;
+        width: 16rem;
+    }
+    .kub-hero::after {
+        right: -4rem;
+        bottom: -6rem;
+        height: 18rem;
+        width: 18rem;
     }
 }
