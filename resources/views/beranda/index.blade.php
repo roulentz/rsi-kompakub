@@ -157,14 +157,15 @@
 
                             {{-- Tombol Lamar Cepat jika Cari Tim --}}
                             @if ($item->kategori === 'Cari Tim' && $item->status === 'Aktif' && $profil && $profil->id_profil !== $item->id_pembuat)
-                                <form action="{{ route('lamaran.store', $item->id_postingan) }}" method="POST">
-                                    @csrf
-                                    <button
-                                        type="submit"
-                                        class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg transition">
-                                        Lamar
-                                    </button>
-                                </form>
+                                {{-- Dialog konfirmasi lamaran (UI05) milik SH --}}
+                                <button
+                                    type="button"
+                                    x-data
+                                    x-on:click="$dispatch('open-modal', 'konfirmasi-lamaran-{{ $item->id_postingan }}')"
+                                    class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg transition">
+                                    Lamar
+                                </button>
+                                @include('lamaran._konfirmasi', ['postingan' => $item, 'profil' => $profil])
                             @endif
                         </div>
                     </div>
