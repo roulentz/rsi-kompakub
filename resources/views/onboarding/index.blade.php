@@ -1,5 +1,5 @@
 <x-layout-fokus>
-    <div x-data="{ langkah: {{ $errors->any() ? 1 : 0 }}, total: 3 }">
+    <div x-data="{ langkah: {{ $errors->any() ? 1 : 0 }}, total: 4 }">
         <form action="{{ route('onboarding.proses') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
@@ -15,7 +15,7 @@
                 </div>
             </section>
 
-            {{-- Langkah 1 sampai 3 --}}
+            {{-- Langkah 1 sampai 4 --}}
             <section x-show="langkah > 0" x-cloak class="kub-card !p-6 sm:!p-8">
                 @if ($errors->any())
                     <div class="mb-5 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 ring-1 ring-red-200" role="alert">
@@ -27,27 +27,58 @@
                     </div>
                 @endif
 
-                <div class="grid grid-cols-3 gap-2" aria-hidden="true">
-                    @foreach ([1, 2, 3] as $n)
+                <div class="grid grid-cols-4 gap-2" aria-hidden="true">
+                    @foreach ([1, 2, 3, 4] as $n)
                         <div class="h-1.5 rounded-full transition-colors" :class="langkah >= {{ $n }} ? 'bg-brand' : 'bg-surface-tint'"></div>
                     @endforeach
                 </div>
-                <p class="mt-5 text-center text-xs font-semibold uppercase tracking-wider text-brand-dark">Langkah <span x-text="langkah"></span> dari 3</p>
+                <p class="mt-5 text-center text-xs font-semibold uppercase tracking-wider text-brand-dark">Langkah <span x-text="langkah"></span> dari 4</p>
 
                 <div x-show="langkah === 1" class="mt-2">
+                    <h2 class="text-center text-2xl font-bold text-navy-deep">Kenalan Dulu, Yuk</h2>
+                    <p class="mb-5 mt-1 text-center text-sm text-gray-500">Semua kolom opsional. Yang kamu isi langsung tampil di profilmu.</p>
+
+                    <div class="space-y-4">
+                        <div>
+                            <x-input-label value="Foto Profil" />
+                            <x-unggah-gambar name="foto" :maks="5" :potong="true" judul="Pilih foto profil" petunjuk="JPG atau PNG. Setelah dipilih kamu bisa geser dan zoom." />
+                        </div>
+
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div>
+                                <x-input-label for="jurusan" value="Jurusan & Fakultas" />
+                                <x-text-input id="jurusan" name="jurusan" maxlength="100" :value="old('jurusan')" placeholder="Sistem Informasi, FILKOM" />
+                            </div>
+                            <div>
+                                <x-input-label for="angkatan" value="Tahun Angkatan" />
+                                <x-text-input id="angkatan" name="angkatan" maxlength="10" inputmode="numeric" :value="old('angkatan')" placeholder="2024" />
+                            </div>
+                        </div>
+
+                        <div x-data="{ n: {{ mb_strlen(old('bio', '')) }} }">
+                            <div class="flex items-end justify-between">
+                                <x-input-label for="bio" value="Bio Singkat" />
+                                <span class="mb-1 text-xs text-gray-400"><span x-text="n"></span> / 200</span>
+                            </div>
+                            <textarea id="bio" name="bio" rows="3" maxlength="200" @input="n = $event.target.value.length" class="kub-input" placeholder="Ceritakan singkat tentang dirimu">{{ old('bio') }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div x-show="langkah === 2" x-cloak class="mt-2">
                     <h2 class="text-center text-2xl font-bold text-navy-deep">Keahlian Apa yang Kamu Bawa ke Tim?</h2>
                     <p class="mb-5 mt-1 text-center text-sm text-gray-500">Pilih minimal 1 kemampuan teknis atau non-teknis agar rekan tim menemukanmu.</p>
                     <x-pilih-skill :skills="$skills" :dipilih="old('skills', [])" />
                 </div>
 
-                <div x-show="langkah === 2" x-cloak class="mt-2">
+                <div x-show="langkah === 3" x-cloak class="mt-2">
                     <h2 class="text-center text-2xl font-bold text-navy-deep">Apa Minat Kolaborasimu?</h2>
                     <p class="mb-5 mt-1 text-center text-sm text-gray-500">Tulis topik atau jenis proyek yang ingin kamu kerjakan.</p>
                     <x-input-label for="interest" value="Minat / Bidang Ketertarikan" />
                     <x-text-input id="interest" name="interest" maxlength="255" :value="old('interest')" placeholder="Contoh: UI/UX, Web Development, Data Science" />
                 </div>
 
-                <div x-show="langkah === 3" x-cloak class="mt-2">
+                <div x-show="langkah === 4" x-cloak class="mt-2">
                     <h2 class="text-center text-2xl font-bold text-navy-deep">Punya Portofolio? (Opsional)</h2>
                     <p class="mb-5 mt-1 text-center text-sm text-gray-500">Maksimal 20 halaman, JPG atau PNG, 5 MB per halaman. Gambar yang dipilih langsung terlihat di bawah.</p>
                     <x-unggah-gambar name="halaman[]" :multiple="true" :maks="5" :maks-file="20" judul="Pilih halaman portofolio" />
@@ -56,7 +87,7 @@
                 <div class="mt-8 flex items-center justify-between gap-3">
                     <button type="button" @click="langkah--" class="kub-btn kub-btn-soft kub-btn-sm"><x-icon name="arrow-left" class="h-4 w-4" /> Kembali</button>
                     <div class="flex items-center gap-3">
-                        <button type="submit" name="aksi" value="lewati" class="text-xs font-medium text-muted underline hover:text-navy">Lewati untuk sekarang</button>
+                        <button type="submit" name="aksi" value="lewati" class="text-xs font-medium text-muted underline hover:text-navy">Lewati sisanya</button>
                         <button type="button" x-show="langkah < total" @click="langkah++" class="kub-btn kub-btn-brand kub-btn-sm">Lanjut <x-icon name="arrow-right" class="h-4 w-4" /></button>
                         <button type="submit" name="aksi" value="lengkapi" x-show="langkah === total" x-cloak class="kub-btn kub-btn-navy kub-btn-sm">Simpan & Lanjut ke Beranda</button>
                     </div>

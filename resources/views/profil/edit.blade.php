@@ -20,7 +20,7 @@
                     <x-avatar :user="$profil->user" :foto="$profil->fotoUrl()" size="h-24 w-24 text-3xl shadow-angkat" />
                     <p class="mt-2 text-[11px] text-gray-500">Foto saat ini</p>
                 </div>
-                <x-unggah-gambar name="foto" :maks="2" judul="Pilih foto baru" petunjuk="Klik atau seret foto ke sini. JPG atau PNG, maksimal 2 MB." class="flex-1">
+                <x-unggah-gambar name="foto" :maks="5" :potong="true" judul="Pilih foto baru" petunjuk="Klik atau seret foto ke sini. JPG atau PNG, setelah dipilih kamu bisa geser dan zoom." class="flex-1">
                     <x-input-error :messages="$errors->get('foto')" class="mt-2" />
                 </x-unggah-gambar>
             </div>

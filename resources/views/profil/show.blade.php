@@ -16,54 +16,60 @@
         @endif
 
         {{-- Identitas --}}
-        <section class="kub-card !p-0 overflow-hidden">
-            <div class="kub-hero h-28 sm:h-36"></div>
+        <section class="kub-profil-kartu">
+            <div class="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:text-left">
+                <div class="kub-avatar-cincin">
+                    <x-avatar :user="$profil->user" :foto="$profil->fotoUrl()" size="h-28 w-28 !border-4 text-4xl sm:h-32 sm:w-32" />
+                </div>
 
-            <div class="px-5 pb-6 sm:px-8">
-                <div class="-mt-12 flex flex-col gap-4 sm:-mt-14 sm:flex-row sm:items-end">
-                    <x-avatar :user="$profil->user" :foto="$profil->fotoUrl()" size="h-24 w-24 !border-4 text-3xl shadow-angkat sm:h-28 sm:w-28" />
+                <div class="min-w-0 flex-1">
+                    <h3 class="text-2xl font-bold text-navy-deep sm:text-3xl">{{ $profil->user->name }}</h3>
 
-                    <div class="min-w-0 flex-1 sm:pb-1">
-                        <h3 class="truncate text-2xl font-bold text-navy-deep">{{ $profil->user->name }}</h3>
-                        <p class="text-sm text-gray-500">{{ $profil->jurusan ?: 'Jurusan belum diisi' }}{{ $profil->angkatan ? ' · Angkatan '.$profil->angkatan : '' }}</p>
+                    <p class="mt-1 flex items-start justify-center gap-2 text-sm text-navy sm:justify-start">
+                        <x-icon name="academic-cap" class="mt-0.5 h-4 w-4 shrink-0" />
+                        <span>{{ $profil->jurusan ?: 'Jurusan belum diisi' }}{{ $profil->angkatan ? " · Angkatan {$profil->angkatan}" : '' }} · Universitas Brawijaya</span>
+                    </p>
+
+                    <p class="mt-4 text-sm leading-relaxed text-navy-deep">{{ $profil->bio ?: 'Belum ada bio.' }}</p>
+
+                    @if ($profil->interest)
+                        <p class="mt-2 text-sm text-gray-600"><span class="font-semibold text-navy">Minat:</span> {{ $profil->interest }}</p>
+                    @endif
+
+                    <div class="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
+                        @forelse ($profil->skills as $s)
+                            <x-chip>{{ $s->nama_skill }}</x-chip>
+                        @empty
+                            <span class="text-sm text-gray-400">Belum ada skill.</span>
+                        @endforelse
                     </div>
 
-                    <div class="flex flex-wrap gap-2 sm:pb-1">
+                    <dl class="kub-statistik mt-5 flex justify-center gap-5 sm:justify-start">
+                        @foreach ([['Proyek Selesai', $riwayat->count()], ['Rekomendasi', $rekomendasi->count()], ['Skill', $profil->skills->count()]] as [$label, $angka])
+                            <div class="text-left">
+                                <dd class="text-xl font-bold text-navy">{{ $angka }}</dd>
+                                <dt class="text-xs text-gray-500">{{ $label }}</dt>
+                            </div>
+                        @endforeach
+                    </dl>
+
+                    <div class="mt-5 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
                         @if ($pemilik)
-                            <a href="{{ route('profil.edit') }}" class="kub-btn kub-btn-brand kub-btn-sm"><x-icon name="pencil" class="h-4 w-4" /> Edit Profil</a>
-                        @elseif (Route::has('dm.mulai'))
-                            <a href="{{ route('dm.mulai', $profil->id_profil) }}" class="kub-btn kub-btn-navy kub-btn-sm"><x-icon name="chat" class="h-4 w-4" /> Kirim Pesan</a>
+                            <a href="{{ route('profil.edit') }}" class="kub-btn kub-btn-brand"><x-icon name="pencil" class="h-4 w-4" /> Edit Profil</a>
                         @endif
+
                         <button type="button" x-data="{ ok: false }"
                                 @click="navigator.clipboard.writeText(@js(route('profil.lihat', $profil))); ok = true; setTimeout(() => ok = false, 2000)"
-                                class="kub-btn kub-btn-outline kub-btn-sm">
+                                class="kub-btn kub-btn-soft">
                             <x-icon name="share" class="h-4 w-4" />
                             <span x-text="ok ? 'Tautan disalin' : 'Bagikan Profil'"></span>
                         </button>
+
+                        @if (! $pemilik && Route::has('dm.mulai'))
+                            <a href="{{ route('dm.mulai', $profil->id_profil) }}" class="kub-btn kub-btn-soft !px-3" aria-label="Kirim pesan"><x-icon name="chat" class="h-5 w-5" /></a>
+                        @endif
                     </div>
                 </div>
-
-                <p class="mt-5 text-sm leading-relaxed text-navy-deep">{{ $profil->bio ?: 'Belum ada bio.' }}</p>
-                @if ($profil->interest)
-                    <p class="mt-2 text-sm text-gray-600"><span class="font-semibold text-navy">Minat:</span> {{ $profil->interest }}</p>
-                @endif
-
-                <div class="mt-4 flex flex-wrap gap-2">
-                    @forelse ($profil->skills as $s)
-                        <x-chip>{{ $s->nama_skill }}</x-chip>
-                    @empty
-                        <span class="text-sm text-gray-400">Belum ada skill.</span>
-                    @endforelse
-                </div>
-
-                <dl class="mt-5 grid grid-cols-3 gap-3">
-                    @foreach ([['Proyek Selesai', $riwayat->count()], ['Rekomendasi', $rekomendasi->count()], ['Skill', $profil->skills->count()]] as [$label, $angka])
-                        <div class="kub-soft text-center">
-                            <dd class="text-2xl font-bold text-navy">{{ $angka }}</dd>
-                            <dt class="text-xs text-gray-500">{{ $label }}</dt>
-                        </div>
-                    @endforeach
-                </dl>
             </div>
         </section>
 

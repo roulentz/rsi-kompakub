@@ -130,6 +130,22 @@
         @apply border-brand bg-brand-soft/60;
     }
 
+
+    /* Kartu identitas profil (tanpa banner): avatar ber-cincin gradasi, statistik berpembatas. */
+    .kub-profil-kartu {
+        @apply relative overflow-hidden rounded-3xl bg-white p-5 shadow-kartu ring-1 ring-navy/5 sm:p-7;
+        background-image:
+            radial-gradient(circle at 100% 0%, rgb(245 184 109 / 0.16), transparent 45%),
+            radial-gradient(circle at 0% 100%, rgb(217 225 255 / 0.55), transparent 45%);
+    }
+    .kub-avatar-cincin {
+        @apply shrink-0 rounded-full p-1 shadow-angkat;
+        background-image: linear-gradient(135deg, #203967, #D9E1FF 50%, #F5B86D);
+    }
+    .kub-statistik > div + div {
+        @apply border-l border-navy/10 pl-5;
+    }
+
     /* Panel biru tua dengan lingkaran lembut (banner profil dan sambutan onboarding). */
     .kub-hero {
         @apply relative overflow-hidden bg-gradient-to-br from-navy via-navy to-navy-dark text-white;
