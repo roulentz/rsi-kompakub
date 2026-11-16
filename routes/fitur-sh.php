@@ -15,6 +15,7 @@ Route::middleware(['auth', 'onboarded'])->group(function () {
 
     // PCT-PC05: tandai proyek selesai dan catat riwayat kolaborasi
     Route::post('/postingan/{postingan}/selesai', [PostinganController::class, 'selesai'])->name('postingan.selesai');
+    Route::patch('/postingan/{postingan}/detail-proyek', [PostinganController::class, 'perbaruiDetail'])->name('postingan.detail-proyek');
 
     // PCT-PC06: kirim lamaran (route kontrak untuk tombol Lamar milik MZ)
     Route::post('/postingan/{postingan_id}/lamaran', [LamaranController::class, 'store'])->name('lamaran.store');

@@ -184,23 +184,50 @@
                     @php
                         $tim = $timPerProyek->get($r->id_postingan, collect());
                         $jumlahTim = max($tim->count(), 1);
+                        $pencapaian = $r->postingan?->pencapaian;
+                        $juara = in_array($pencapaian, ['Juara 1', 'Juara 2', 'Juara 3'], true);
+                        $namaProyek = $r->postingan?->nama_proyek;
                     @endphp
-                    <article class="flex flex-col gap-3 rounded-2xl bg-surface-tint/70 p-4 ring-1 ring-navy/5 sm:flex-row sm:items-center sm:justify-between">
+                    <article x-data="{ ubah: {{ $errors->has('peran') && old('_riwayat') == $r->id_riwayat ? 'true' : 'false' }} }"
+                             class="flex flex-col gap-3 rounded-2xl bg-surface-tint/70 p-4 ring-1 ring-navy/5 sm:flex-row sm:items-center sm:justify-between">
                         <div class="min-w-0">
-                            <p class="flex items-center gap-1.5 text-sm font-semibold text-navy-deep">
-                                <x-icon name="check-circle" class="h-4 w-4 shrink-0 text-brand-dark" />
-                                <span class="truncate">{{ $r->judul_proyek }}</span>
+                            <p class="flex items-start gap-1.5 text-sm font-semibold {{ $juara ? 'text-brand-dark' : 'text-navy-deep' }}">
+                                <x-icon :name="$juara ? 'trophy' : 'check-circle'" class="mt-0.5 h-4 w-4 shrink-0 {{ $juara ? 'text-brand-dark' : 'text-navy' }}" />
+                                <span>{{ $pencapaian ? $pencapaian.' ' : '' }}{{ $r->judul_proyek }}</span>
                             </p>
+                            @if ($namaProyek)
+                                <p class="mt-1 text-sm leading-snug text-navy-deep">{{ $namaProyek }}</p>
+                            @endif
                             <p class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500">
-                                @if ($r->peran)<span class="inline-flex items-center gap-1"><x-icon name="user" class="h-3.5 w-3.5" /> Peran: <b class="font-semibold text-navy">{{ $r->peran }}</b></span>@endif
+                                @if ($r->peran)
+                                    <span class="inline-flex items-center gap-1"><x-icon name="user" class="h-3.5 w-3.5" /> Peran: <b class="font-semibold text-navy">{{ $r->peran }}</b>
+                                        @if ($pemilik)
+                                            <button type="button" @click="ubah = !ubah" class="ms-0.5 rounded-full p-0.5 text-gray-400 hover:bg-white hover:text-navy" aria-label="Ubah peran"><x-icon name="pencil" class="h-3.5 w-3.5" /></button>
+                                        @endif
+                                    </span>
+                                @endif
                                 <span class="inline-flex items-center gap-1"><x-icon name="calendar" class="h-3.5 w-3.5" /> Selesai: {{ $r->tanggal_selesai->translatedFormat('M Y') }}</span>
                             </p>
+
+                            @if ($pemilik)
+                                <form x-show="ubah" x-cloak method="POST" action="{{ route('riwayat.update', $r) }}" class="mt-2 flex items-center gap-2">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="_riwayat" value="{{ $r->id_riwayat }}">
+                                    <input type="text" name="peran" value="{{ old('_riwayat') == $r->id_riwayat ? old('peran') : $r->peran }}" maxlength="100" required placeholder="Contoh: Lead Designer" class="kub-input !py-1.5 text-xs">
+                                    <button class="kub-btn kub-btn-brand kub-btn-sm shrink-0">Simpan</button>
+                                </form>
+                                @if (old('_riwayat') == $r->id_riwayat)
+                                    <x-input-error :messages="$errors->get('peran')" class="mt-1" />
+                                @endif
+                            @endif
                         </div>
 
                         <div class="flex shrink-0 items-center gap-2">
                             <div class="flex -space-x-2">
                                 @foreach ($tim->take(3) as $anggota)
-                                    <a href="{{ route('profil.lihat', $anggota->profil) }}" title="{{ $anggota->profil->user->name }}" class="transition hover:z-10 hover:-translate-y-0.5">
+                                    @php $tautanRekan = route('profil.lihat', $anggota->profil).($pemilik && $anggota->id_profil !== $profil->id_profil ? '?ulas=1#rekomendasi' : ''); @endphp
+                                    <a href="{{ $tautanRekan }}" title="{{ $anggota->profil->user->name }}" class="transition hover:z-10 hover:-translate-y-0.5">
                                         <x-avatar :user="$anggota->profil->user" :foto="$anggota->profil->fotoUrl()" size="h-8 w-8 text-[10px] !border-2" />
                                     </a>
                                 @endforeach
@@ -219,7 +246,7 @@
 
         {{-- Rekomendasi --}}
         <section class="kub-card" x-show="tab === 'semua' || tab === 'rekomendasi'" x-cloak
-                 x-data="{ tulis: {{ $errors->has('isi_rekomendasi') ? 'true' : 'false' }} }">
+                 x-data="{ tulis: {{ ($errors->has('isi_rekomendasi') || (request()->boolean('ulas') && $bolehRekomendasi)) ? 'true' : 'false' }} }">
             <div class="mb-4 flex items-start justify-between gap-3">
                 <div class="flex items-start gap-3">
                     <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand-dark"><x-icon name="chat" class="h-5 w-5" /></span>
@@ -235,7 +262,7 @@
 
             <div class="grid gap-4 sm:grid-cols-2">
                 @forelse ($rekomendasi as $rk)
-                    @php $konteks = $konteksRekomendasi->get($rk->id_profil_pemberi); @endphp
+                    @php $konteks = ($rk->id_postingan ? $riwayat->pluck('judul_proyek', 'id_postingan')->get($rk->id_postingan) : null) ?? $konteksRekomendasi->get($rk->id_profil_pemberi); @endphp
                     <article class="flex flex-col rounded-2xl bg-surface-tint/70 p-4 ring-1 ring-navy/5">
                         <div class="flex items-start gap-3">
                             <x-avatar :user="$rk->pemberi->user" :foto="$rk->pemberi->fotoUrl()" size="h-10 w-10 text-xs" />
@@ -290,6 +317,18 @@
                         @csrf
                         <h3 class="text-xl font-bold text-navy-deep">Tulis Rekomendasi untuk {{ $profil->user->name }}</h3>
                         <p class="mt-1 text-xs text-gray-500">Ceritakan pengalaman bekerja sama dalam proyek yang sudah selesai.</p>
+
+                        @if ($proyekBersama->count() > 1)
+                            <label class="mt-4 block text-xs font-semibold text-navy" for="id_postingan">Untuk proyek</label>
+                            <select id="id_postingan" name="id_postingan" class="kub-input mt-1">
+                                @foreach ($proyekBersama as $idProyek => $judulProyek)
+                                    <option value="{{ $idProyek }}" @selected(old('id_postingan') == $idProyek)>{{ $judulProyek }}</option>
+                                @endforeach
+                            </select>
+                        @else
+                            <input type="hidden" name="id_postingan" value="{{ $proyekBersama->keys()->first() }}">
+                            <p class="mt-3 text-xs text-gray-500">Untuk proyek: <b class="font-semibold text-navy">{{ $proyekBersama->first() }}</b></p>
+                        @endif
 
                         <textarea name="isi_rekomendasi" rows="5" maxlength="500" required class="kub-input mt-4" @input="n = $event.target.value.length"
                                   placeholder="Tulis rekomendasi (maks. 500 karakter)">{{ old('isi_rekomendasi') }}</textarea>

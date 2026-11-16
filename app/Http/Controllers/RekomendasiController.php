@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Notifikasi;
 use App\Models\ProfilMahasiswa;
 use App\Models\Rekomendasi;
 use App\Models\RiwayatKolaborasi;
@@ -11,11 +12,16 @@ use Illuminate\View\View;
 
 class RekomendasiController extends Controller
 {
-    /** kirimRekomendasi(): maks 500 karakter, bukan untuk diri sendiri, hanya rekan satu tim. */
+    /**
+     * kirimRekomendasi(): maks 500 karakter, bukan untuk diri sendiri, hanya rekan satu tim, dan
+     * maksimal satu rekomendasi per rekan per proyek. Proyek dipilih lewat id_postingan (opsional:
+     * bila kosong dipakai proyek bersama terbaru yang belum direkomendasikan).
+     */
     public function store(Request $request, ProfilMahasiswa $profil): RedirectResponse
     {
         $data = $request->validate([
             'isi_rekomendasi' => ['required', 'string', 'max:500'],
+            'id_postingan' => ['nullable', 'integer'],
         ], [
             'isi_rekomendasi.max' => 'Rekomendasi maksimal 500 karakter.',
         ]);
@@ -31,13 +37,48 @@ class RekomendasiController extends Controller
             return back()->withErrors(['isi_rekomendasi' => 'Rekomendasi hanya dapat diberikan kepada rekan satu tim pada proyek yang sudah selesai.']);
         }
 
+        // Proyek yang dikerjakan bersama, urut dari yang terbaru.
+        $bersama = RiwayatKolaborasi::where('id_profil', $profil->id_profil)
+            ->whereIn('id_postingan', RiwayatKolaborasi::where('id_profil', $saya->id_profil)->select('id_postingan'))
+            ->orderByDesc('tanggal_selesai')
+            ->pluck('id_postingan')
+            ->all();
+
+        $sudah = Rekomendasi::where('id_profil_pemberi', $saya->id_profil)
+            ->where('id_profil_penerima', $profil->id_profil)
+            ->whereNotNull('id_postingan')
+            ->pluck('id_postingan')
+            ->all();
+
+        $idPostingan = $data['id_postingan'] ?? null;
+
+        if ($idPostingan !== null) {
+            if (! in_array((int) $idPostingan, $bersama, true)) {
+                return back()->withErrors(['isi_rekomendasi' => 'Proyek yang dipilih bukan proyek yang kalian kerjakan bersama.']);
+            }
+        } else {
+            $idPostingan = collect($bersama)->first(fn ($id) => ! in_array($id, $sudah, true)) ?? $bersama[0];
+        }
+
+        if (in_array((int) $idPostingan, $sudah, true)) {
+            return back()->withErrors(['isi_rekomendasi' => 'Kamu sudah memberi rekomendasi untuk rekan ini pada proyek tersebut.']);
+        }
+
         Rekomendasi::create([
             'id_profil_pemberi' => $saya->id_profil,
             'id_profil_penerima' => $profil->id_profil,
+            'id_postingan' => (int) $idPostingan,
             'isi_rekomendasi' => $data['isi_rekomendasi'],
             'tanggal_dikirim' => now()->toDateString(),
             'status_laporan' => 'tidak_dilaporkan',
         ]);
+
+        Notifikasi::kirim(
+            $profil->id_profil,
+            'Rekomendasi Baru',
+            "{$request->user()->name} memberi rekomendasi untukmu.",
+            route('profil.show', [], false).'#rekomendasi',
+        );
 
         return back()->with('status', 'Rekomendasi terkirim.');
     }

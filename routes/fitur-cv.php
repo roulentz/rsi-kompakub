@@ -3,6 +3,7 @@
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PortofolioController;
 use App\Http\Controllers\ProfilController;
+use App\Http\Controllers\RiwayatController;
 use App\Http\Controllers\RekomendasiController;
 use App\Http\Controllers\VerifikasiController;
 use Illuminate\Support\Facades\Route;
@@ -30,6 +31,7 @@ Route::middleware('auth')->group(function () {
 
         Route::get('profil/{profil}', [ProfilController::class, 'lihat'])->whereNumber('profil')->name('profil.lihat');
         Route::post('profil/{profil}/rekomendasi', [RekomendasiController::class, 'store'])->whereNumber('profil')->name('rekomendasi.store');
+        Route::patch('riwayat/{riwayat}', [RiwayatController::class, 'update'])->name('riwayat.update');
         Route::post('rekomendasi/{rekomendasi}/laporkan', [RekomendasiController::class, 'laporkan'])->name('rekomendasi.laporkan');
     });
 

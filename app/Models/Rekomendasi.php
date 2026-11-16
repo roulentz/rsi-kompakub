@@ -16,6 +16,7 @@ class Rekomendasi extends Model
     protected $fillable = [
         'id_profil_pemberi',
         'id_profil_penerima',
+        'id_postingan',
         'isi_rekomendasi',
         'tanggal_dikirim',
         'status_laporan',
