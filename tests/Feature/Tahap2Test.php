@@ -56,8 +56,13 @@ class Tahap2Test extends TestCase
         $this->assertSame('Juara 2', $p->pencapaian);
         $this->assertSame('Platform Kost', $p->nama_proyek);
 
-        $this->assertDatabaseHas('riwayat_kolaborasi', ['id_profil' => $pembuat->id_profil, 'peran' => 'Lead Designer', 'tanggal_selesai' => '2026-01-10']);
-        $this->assertDatabaseHas('riwayat_kolaborasi', ['id_profil' => $anggota->id_profil, 'peran' => 'Anggota Tim', 'tanggal_selesai' => '2026-01-10']);
+        // SQLite menyimpan kolom tanggal sebagai "2026-01-10 00:00:00", jadi bandingkan lewat model (cast date).
+        $riwayatPembuat = RiwayatKolaborasi::where('id_profil', $pembuat->id_profil)->first();
+        $riwayatAnggota = RiwayatKolaborasi::where('id_profil', $anggota->id_profil)->first();
+        $this->assertSame('Lead Designer', $riwayatPembuat->peran);
+        $this->assertSame('Anggota Tim', $riwayatAnggota->peran);
+        $this->assertSame('2026-01-10', $riwayatPembuat->tanggal_selesai->toDateString());
+        $this->assertSame('2026-01-10', $riwayatAnggota->tanggal_selesai->toDateString());
 
         // Anggota diberi tahu, pembuat tidak.
         $this->assertDatabaseHas('notifikasi', ['id_penerima' => $anggota->id_profil, 'tipe' => 'Proyek Selesai']);
