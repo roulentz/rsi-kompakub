@@ -31,27 +31,37 @@ class RiwayatKolaborasi extends Model
         return $this->belongsTo(ProfilMahasiswa::class, 'id_profil', 'id_profil');
     }
 
+    public function postingan(): BelongsTo
+    {
+        return $this->belongsTo(Postingan::class, 'id_postingan', 'id_postingan');
+    }
+
     /**
      * KONTRAK UNTUK SH: panggil saat proyek ditandai selesai.
      * Semua argumen berupa id_profil (bukan user id): $user->profil->id_profil.
-     * Aman dipanggil ulang (tidak membuat riwayat ganda).
+     * Aman dipanggil ulang (tidak membuat riwayat ganda dan tidak menimpa peran yang sudah diedit anggota).
      *
      * @param  array<int>  $idProfilAnggota  anggota berstatus diterima
+     * @param  string|null  $tanggal  tanggal selesai (default hari ini; Tandai Selesai mengirim tanggal lomba)
+     * @param  string|null  $peranPembuat  peran pembuat (default "Pembuat Tim")
      */
-    public static function catatProyekSelesai(int $idPostingan, string $judul, int $idProfilPembuat, array $idProfilAnggota): void
+    public static function catatProyekSelesai(int $idPostingan, string $judul, int $idProfilPembuat, array $idProfilAnggota, ?string $tanggal = null, ?string $peranPembuat = null): void
     {
-        $tanggal = now()->toDateString();
+        $tanggal ??= now()->toDateString();
 
-        $daftar = [$idProfilPembuat => 'Pembuat Tim'];
+        $daftar = [$idProfilPembuat => $peranPembuat ?: 'Pembuat Tim'];
         foreach ($idProfilAnggota as $id) {
             $daftar[$id] ??= 'Anggota Tim';
         }
 
         foreach ($daftar as $idProfil => $peran) {
-            static::updateOrCreate(
-                ['id_profil' => $idProfil, 'id_postingan' => $idPostingan],
-                ['judul_proyek' => $judul, 'peran' => $peran, 'tanggal_selesai' => $tanggal]
-            );
+            $baris = static::firstOrNew(['id_profil' => $idProfil, 'id_postingan' => $idPostingan]);
+            if (! $baris->exists) {
+                $baris->peran = $peran;
+            }
+            $baris->judul_proyek = $judul;
+            $baris->tanggal_selesai = $tanggal;
+            $baris->save();
         }
     }
 

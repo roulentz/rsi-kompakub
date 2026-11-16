@@ -46,7 +46,7 @@ class PostinganSelesaiTest extends TestCase
         $this->lamar($p, $menunggu, 'Menunggu Konfirmasi');
 
         $this->actingAs($pembuat->user)
-            ->post(route('postingan.selesai', $p->id_postingan))
+            ->post(route('postingan.selesai', $p->id_postingan), ['pencapaian' => 'Juara 2'])
             ->assertSessionHas('status', 'Proyek berhasil ditandai selesai');
 
         $this->assertSame('Selesai', $p->fresh()->status);
@@ -77,7 +77,7 @@ class PostinganSelesaiTest extends TestCase
         $this->lamar($p, $this->profil(), 'Menunggu Konfirmasi');
 
         $this->actingAs($pembuat->user)
-            ->post(route('postingan.selesai', $p->id_postingan))
+            ->post(route('postingan.selesai', $p->id_postingan), ['pencapaian' => 'Peserta'])
             ->assertSessionHasErrors('selesai');
 
         $this->assertSame('Aktif', $p->fresh()->status);
@@ -90,9 +90,9 @@ class PostinganSelesaiTest extends TestCase
         $p = $this->buatPost($pembuat);
         $this->lamar($p, $this->profil(), 'Diterima');
 
-        $this->actingAs($pembuat->user)->post(route('postingan.selesai', $p->id_postingan));
+        $this->actingAs($pembuat->user)->post(route('postingan.selesai', $p->id_postingan), ['pencapaian' => 'Peserta']);
         $this->actingAs($pembuat->user)
-            ->post(route('postingan.selesai', $p->id_postingan))
+            ->post(route('postingan.selesai', $p->id_postingan), ['pencapaian' => 'Peserta'])
             ->assertSessionHasErrors('selesai');
 
         $this->assertSame(2, RiwayatKolaborasi::count());

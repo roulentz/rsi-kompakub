@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ProfilMahasiswa;
+use App\Models\Rekomendasi;
 use App\Models\RiwayatKolaborasi;
 use App\Models\Skill;
 use Illuminate\Http\RedirectResponse;
@@ -32,7 +33,7 @@ class ProfilController extends Controller
         $saya = $request->user()->profil;
         $pemilik = $saya && $saya->id_profil === $profil->id_profil;
 
-        $riwayat = $profil->riwayat()->orderByDesc('tanggal_selesai')->get();
+        $riwayat = $profil->riwayat()->with('postingan')->orderByDesc('tanggal_selesai')->get();
         $rekomendasi = $profil->rekomendasiDiterima()->with('pemberi.user')->orderByDesc('id_rekomendasi')->get();
 
         // Anggota tim di tiap proyek pada riwayat (untuk tumpukan avatar dan "N Mahasiswa"), diambil dalam satu query.
@@ -41,13 +42,26 @@ class ProfilController extends Controller
             ->get()
             ->groupBy('id_postingan');
 
-        // "Partner di ...": proyek pertama yang pernah dikerjakan bersama pemberi rekomendasi.
+        // "Partner di ...": utamakan proyek yang tersimpan di rekomendasi, cadangannya proyek pertama yang dikerjakan bersama.
         $judulProyek = $riwayat->whereNotNull('id_postingan')->pluck('judul_proyek', 'id_postingan');
         $konteksRekomendasi = RiwayatKolaborasi::whereIn('id_profil', $rekomendasi->pluck('id_profil_pemberi')->unique())
             ->whereIn('id_postingan', $judulProyek->keys())
             ->get()
             ->groupBy('id_profil')
             ->map(fn ($grup) => $judulProyek[$grup->first()->id_postingan] ?? null);
+
+        // Proyek yang bisa direkomendasikan oleh pelihat untuk profil ini (belum pernah direkomendasikan).
+        $proyekBersama = collect();
+        if ($saya && ! $pemilik) {
+            $idSaya = RiwayatKolaborasi::where('id_profil', $saya->id_profil)->pluck('judul_proyek', 'id_postingan');
+            $sudah = Rekomendasi::where('id_profil_pemberi', $saya->id_profil)
+                ->where('id_profil_penerima', $profil->id_profil)
+                ->whereNotNull('id_postingan')
+                ->pluck('id_postingan');
+            $proyekBersama = $riwayat->whereNotNull('id_postingan')
+                ->filter(fn ($r) => $idSaya->has($r->id_postingan) && ! $sudah->contains($r->id_postingan))
+                ->pluck('judul_proyek', 'id_postingan');
+        }
 
         return view('profil.show', [
             'profil' => $profil,
@@ -59,8 +73,8 @@ class ProfilController extends Controller
             'timPerProyek' => $timPerProyek,
             'rekomendasi' => $rekomendasi,
             'konteksRekomendasi' => $konteksRekomendasi,
-            'bolehRekomendasi' => $saya && ! $pemilik
-                && RiwayatKolaborasi::rekanSatuTim($saya->id_profil, $profil->id_profil),
+            'proyekBersama' => $proyekBersama,
+            'bolehRekomendasi' => $proyekBersama->isNotEmpty(),
         ]);
     }
 

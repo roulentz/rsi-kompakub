@@ -23,7 +23,12 @@ class Postingan extends Model
         'deskripsi',
         'foto',
         'status',
+        'pencapaian',
+        'nama_proyek',
     ];
+
+    /** Pilihan pencapaian yang diisi pembuat saat proyek ditandai selesai. */
+    public const PENCAPAIAN = ['Juara 1', 'Juara 2', 'Juara 3', 'Harapan', 'Finalis', 'Peserta'];
 
     protected function casts(): array
     {
@@ -31,6 +36,12 @@ class Postingan extends Model
             'waktu_perlombaan' => 'date',
             'jumlah_anggota' => 'integer',
         ];
+    }
+
+    /** Tombol Tandai Selesai baru aktif pada hari lomba atau setelahnya (hasil pengumuman sudah ada). */
+    public function lombaSudahLewat(): bool
+    {
+        return $this->waktu_perlombaan === null || $this->waktu_perlombaan->lte(today());
     }
 
     public function pembuat(): BelongsTo

@@ -2,7 +2,7 @@
     UI06 Permintaan Kolaborasi (PCT, milik SH).
     Tab Masuk: postingan cari tim milikku beserta jumlah pelamar baru.
     Tab Terkirim: lamaran yang aku kirim ke postingan orang lain.
-    Tab Notifikasi: pemberitahuan (Pelamar Baru, Diterima, Ditolak) dengan tombol tandai dibaca.
+    Tab Notifikasi: pemberitahuan (Pelamar Baru, Diterima, Ditolak, Proyek Selesai, Rekomendasi Baru) dengan tombol tandai dibaca.
 --}}
 @php
     $tgl = fn ($tanggal) => $tanggal ? $tanggal->locale('id')->translatedFormat('d F Y') : '-';
@@ -120,6 +120,9 @@
                             <p class="text-sm {{ $item->status_baca ? 'text-muted' : 'font-semibold text-navy' }}">{{ $item->pesan }}</p>
                             <p class="mt-0.5 text-xs text-muted">{{ $item->tipe }} · {{ $item->created_at?->locale('id')->translatedFormat('d F Y H:i') }}</p>
                         </div>
+                        @if ($item->tautan)
+                            <a href="{{ url($item->tautan) }}" class="rounded-full bg-brand px-3 py-1 text-xs font-medium text-white transition hover:bg-brand-dark">Lihat</a>
+                        @endif
                         @unless ($item->status_baca)
                             <form method="POST" action="{{ route('notifikasi.dibaca', $item->id_notifikasi) }}">
                                 @csrf

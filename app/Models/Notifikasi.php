@@ -17,6 +17,7 @@ class Notifikasi extends Model
         'id_penerima',
         'tipe',
         'pesan',
+        'tautan',
         'status_baca',
         'created_at',
     ];
@@ -39,12 +40,13 @@ class Notifikasi extends Model
     }
 
     // Kirim notifikasi ke satu profil (belum dibaca)
-    public static function kirim(int $idPenerima, string $tipe, string $pesan): self
+    public static function kirim(int $idPenerima, string $tipe, string $pesan, ?string $tautan = null): self
     {
         return self::create([
             'id_penerima' => $idPenerima,
             'tipe' => $tipe,
             'pesan' => $pesan,
+            'tautan' => $tautan,
         ]);
     }
 }
