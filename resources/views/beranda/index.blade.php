@@ -8,7 +8,9 @@
         <x-flash />
 
         {{-- Buat postingan: pilih kategori Umum, Info Lomba, atau Cari Tim --}}
-        <x-komposer-postingan :profil="$profil" />
+        @unless (Auth::user()->isAdmin())
+    <x-komposer-postingan :profil="$profil" />
+@endunless
 
         {{-- Filter kategori (EFP-PC02) --}}
         <nav class="overflow-x-auto pb-1" aria-label="Filter kategori">
