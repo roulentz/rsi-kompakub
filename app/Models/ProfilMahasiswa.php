@@ -54,6 +54,11 @@ class ProfilMahasiswa extends Model
         return $this->hasMany(Portofolio::class, 'id_profil', 'id_profil');
     }
 
+    public function postingan(): HasMany
+    {
+        return $this->hasMany(Postingan::class, 'id_pembuat', 'id_profil');
+    }
+
     public function riwayat(): HasMany
     {
         return $this->hasMany(RiwayatKolaborasi::class, 'id_profil', 'id_profil');

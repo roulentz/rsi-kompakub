@@ -141,7 +141,7 @@ class TampilanDanPostinganTest extends TestCase
 
         // alamat ada di dalam JSON untuk slider, jadi garis miringnya ter-escape (\/)
         $this->assertMatchesRegularExpression('#/storage\\\\*/portofolio\\\\*/a\.png#', $html);
-        $this->assertStringContainsString('Riwayat Kolaborasi Kampus', $html);
+        $this->assertStringContainsString('Riwayat Kolaborasi', $html);
         $this->assertStringContainsString('Rekomendasi Rekan Tim', $html);
         $this->assertStringContainsString('Edit Profil', $html);
     }

@@ -6,15 +6,14 @@
 --}}
 @php
     $gagal = old('_form') === 'postingan';
-    $daftarSkill = \App\Models\Skill::orderBy('nama_skill')->pluck('nama_skill')->values();
+    $daftarSkill = \App\Models\Skill::orderBy('nama_skill')->get(['id_skill', 'nama_skill']);
     $skillLama = $gagal ? collect(explode(',', (string) old('tag_skill')))->map(fn ($s) => trim($s))->filter()->values() : collect();
     $label = 'inline-flex w-full items-center gap-1.5 rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white whitespace-nowrap sm:w-[132px] sm:shrink-0';
     $isian = 'block w-full rounded-full border-0 bg-white px-4 py-1.5 text-xs text-navy placeholder:text-muted/70 focus:ring-2 focus:ring-brand';
 @endphp
 
 <x-modal name="buat-postingan" :show="$gagal" maxWidth="xl" focusable>
-    <form method="POST" action="{{ route('postingan.store') }}" class="bg-surface p-5" aria-label="Form Buat Postingan Cari Tim"
-          x-data="{ dipilih: @js($skillLama), tersedia: @js($daftarSkill), pilih: '' }">
+    <form method="POST" action="{{ route('postingan.store') }}" enctype="multipart/form-data" class="bg-surface p-5" aria-label="Form Buat Postingan Cari Tim">
         @csrf
         <input type="hidden" name="_form" value="postingan">
 
@@ -38,36 +37,20 @@
             </div>
 
             <div class="flex flex-col gap-1.5 sm:flex-row sm:items-start">
-                <label for="pilih_skill" class="{{ $label }} sm:mt-0.5">
+                <span class="{{ $label }} sm:mt-0.5">
                     <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 2 4 11h5l-1 7 7-9h-5z"/></svg>
                     Skill Needed
-                </label>
+                </span>
                 <div class="min-w-0 flex-1">
-                    <div class="relative">
-                        <select id="pilih_skill" x-model="pilih"
-                                x-on:change="if (pilih && !dipilih.includes(pilih)) dipilih.push(pilih); pilih = ''"
-                                class="{{ $isian }} appearance-none pr-9">
-                            <option value="" selected>Pilih skill</option>
-                            <template x-for="s in tersedia.filter(x => !dipilih.includes(x))" :key="s">
-                                <option :value="s" x-text="s"></option>
-                            </template>
-                        </select>
-                        <x-icon name="chevron-down" class="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-navy" />
-                    </div>
-                    <div class="mt-1.5 flex flex-wrap gap-1.5" x-show="dipilih.length" x-cloak>
-                        <template x-for="s in dipilih" :key="s">
-                            <span class="inline-flex items-center gap-1 rounded-full bg-lavender px-2.5 py-0.5 text-xs font-medium text-navy">
-                                <span x-text="s"></span>
-                                <button type="button" x-on:click="dipilih = dipilih.filter(x => x !== s)" class="text-muted hover:text-navy" x-bind:aria-label="'Hapus ' + s">&times;</button>
-                            </span>
-                        </template>
-                    </div>
-                    <input type="hidden" name="tag_skill" :value="dipilih.join(',')">
+                    <x-pilih-skill :skills="$daftarSkill" :dipilih="$skillLama->all()" mode="nama" name="tag_skill" :ringkas="true" />
                 </div>
             </div>
 
             <textarea name="deskripsi" rows="4" maxlength="500" placeholder="Katakan sesuatu" aria-label="Katakan sesuatu"
                       class="block w-full resize-none rounded-lg border-0 bg-white px-4 py-2.5 text-xs text-navy placeholder:text-muted/70 focus:ring-2 focus:ring-brand">{{ $gagal ? old('deskripsi') : '' }}</textarea>
+
+            {{-- Foto opsional (poster lomba, dsb.) dengan pratinjau --}}
+            <x-unggah-gambar name="foto" bentuk="tombol" judul="Tambahkan Foto" :maks="2" :webp="true" />
         </div>
 
         @if ($gagal && (session('pesan_peringatan') || $errors->any()))

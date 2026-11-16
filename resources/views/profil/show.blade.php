@@ -5,7 +5,18 @@
         <p class="kub-muted mt-0.5">Identitas, portofolio, riwayat kolaborasi, dan rekomendasi dari rekan tim.</p>
     </x-slot>
 
-    <div class="mx-auto w-full max-w-4xl space-y-5 px-4 sm:px-6 lg:px-8">
+    @php
+        $tabProfil = [
+            'semua' => ['Semua', null],
+            'postingan' => ['Postingan', $postingan->count()],
+            'portofolio' => ['Portofolio', $profil->portofolio->count()],
+            'riwayat' => ['Riwayat Kolaborasi', $riwayat->count()],
+            'rekomendasi' => ['Rekomendasi', $rekomendasi->count()],
+        ];
+    @endphp
+    <div class="mx-auto w-full max-w-4xl space-y-5 px-4 sm:px-6 lg:px-8"
+         x-data="{ tab: ['postingan', 'portofolio', 'riwayat', 'rekomendasi'].includes(location.hash.slice(1)) ? location.hash.slice(1) : @js($errors->has('isi_rekomendasi') ? 'rekomendasi' : 'semua'),
+                   pilih(t) { this.tab = t; history.replaceState(null, '', t === 'semua' ? location.pathname : '#' + t); } }">
         <x-flash />
 
         @if ($pemilik && $profil->status_default)
@@ -16,59 +27,98 @@
         @endif
 
         {{-- Identitas --}}
-        <section class="kub-card !p-0 overflow-hidden">
-            <div class="kub-hero h-28 sm:h-36"></div>
+        <section class="kub-profil-kartu">
+            <div class="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:text-left">
+                <div class="kub-avatar-cincin">
+                    <x-avatar :user="$profil->user" :foto="$profil->fotoUrl()" size="h-28 w-28 !border-4 text-4xl sm:h-32 sm:w-32" />
+                </div>
 
-            <div class="px-5 pb-6 sm:px-8">
-                <div class="-mt-12 flex flex-col gap-4 sm:-mt-14 sm:flex-row sm:items-end">
-                    <x-avatar :user="$profil->user" :foto="$profil->fotoUrl()" size="h-24 w-24 !border-4 text-3xl shadow-angkat sm:h-28 sm:w-28" />
+                <div class="min-w-0 flex-1">
+                    <h3 class="text-2xl font-bold text-navy-deep sm:text-3xl">{{ $profil->user->name }}</h3>
 
-                    <div class="min-w-0 flex-1 sm:pb-1">
-                        <h3 class="truncate text-2xl font-bold text-navy-deep">{{ $profil->user->name }}</h3>
-                        <p class="text-sm text-gray-500">{{ $profil->jurusan ?: 'Jurusan belum diisi' }}{{ $profil->angkatan ? ' · Angkatan '.$profil->angkatan : '' }}</p>
+                    <p class="mt-1 flex items-start justify-center gap-2 text-sm text-navy sm:justify-start">
+                        <x-icon name="academic-cap" class="mt-0.5 h-4 w-4 shrink-0" />
+                        <span>{{ $profil->jurusan ?: 'Jurusan belum diisi' }}{{ $profil->angkatan ? " · Angkatan {$profil->angkatan}" : '' }} · Universitas Brawijaya</span>
+                    </p>
+
+                    <p class="mt-4 text-sm leading-relaxed text-navy-deep">{{ $profil->bio ?: 'Belum ada bio.' }}</p>
+
+                    @if ($profil->interest)
+                        <p class="mt-2 text-sm text-gray-600"><span class="font-semibold text-navy">Minat:</span> {{ $profil->interest }}</p>
+                    @endif
+
+                    <div class="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
+                        @forelse ($profil->skills as $s)
+                            <x-chip>{{ $s->nama_skill }}</x-chip>
+                        @empty
+                            <span class="text-sm text-gray-400">Belum ada skill.</span>
+                        @endforelse
                     </div>
 
-                    <div class="flex flex-wrap gap-2 sm:pb-1">
+                    <dl class="kub-statistik mt-5 flex justify-center gap-5 sm:justify-start">
+                        @foreach ([['Proyek Selesai', $riwayat->count()], ['Rekomendasi', $rekomendasi->count()], ['Skill', $profil->skills->count()]] as [$label, $angka])
+                            <div class="text-left">
+                                <dd class="text-xl font-bold text-navy">{{ $angka }}</dd>
+                                <dt class="text-xs text-gray-500">{{ $label }}</dt>
+                            </div>
+                        @endforeach
+                    </dl>
+
+                    <div class="mt-5 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
                         @if ($pemilik)
-                            <a href="{{ route('profil.edit') }}" class="kub-btn kub-btn-brand kub-btn-sm"><x-icon name="pencil" class="h-4 w-4" /> Edit Profil</a>
-                        @elseif (Route::has('dm.mulai'))
-                            <a href="{{ route('dm.mulai', $profil->id_profil) }}" class="kub-btn kub-btn-navy kub-btn-sm"><x-icon name="chat" class="h-4 w-4" /> Kirim Pesan</a>
+                            <a href="{{ route('profil.edit') }}" class="kub-btn kub-btn-brand"><x-icon name="pencil" class="h-4 w-4" /> Edit Profil</a>
                         @endif
+
                         <button type="button" x-data="{ ok: false }"
                                 @click="navigator.clipboard.writeText(@js(route('profil.lihat', $profil))); ok = true; setTimeout(() => ok = false, 2000)"
-                                class="kub-btn kub-btn-outline kub-btn-sm">
+                                class="kub-btn kub-btn-soft">
                             <x-icon name="share" class="h-4 w-4" />
                             <span x-text="ok ? 'Tautan disalin' : 'Bagikan Profil'"></span>
                         </button>
+
+                        @if (! $pemilik && Route::has('dm.mulai'))
+                            <a href="{{ route('dm.mulai', $profil->user_id) }}" class="kub-btn kub-btn-soft !px-3" aria-label="Kirim pesan"><x-icon name="chat" class="h-5 w-5" /></a>
+                        @endif
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <p class="mt-5 text-sm leading-relaxed text-navy-deep">{{ $profil->bio ?: 'Belum ada bio.' }}</p>
-                @if ($profil->interest)
-                    <p class="mt-2 text-sm text-gray-600"><span class="font-semibold text-navy">Minat:</span> {{ $profil->interest }}</p>
-                @endif
+        {{-- Tab bagian profil --}}
+        <nav class="overflow-x-auto pb-1" aria-label="Bagian profil">
+            <div class="kub-filter" role="tablist">
+                @foreach ($tabProfil as $kunci => [$label, $jumlah])
+                    <button type="button" role="tab" @click="pilih('{{ $kunci }}')" :class="tab === '{{ $kunci }}' ? 'aktif' : ''"
+                            :aria-selected="tab === '{{ $kunci }}'" class="kub-filter-item whitespace-nowrap">
+                        {{ $label }}@if ($jumlah !== null)<span class="ms-1.5 text-xs opacity-70">{{ $jumlah }}</span>@endif
+                    </button>
+                @endforeach
+            </div>
+        </nav>
 
-                <div class="mt-4 flex flex-wrap gap-2">
-                    @forelse ($profil->skills as $s)
-                        <x-chip>{{ $s->nama_skill }}</x-chip>
-                    @empty
-                        <span class="text-sm text-gray-400">Belum ada skill.</span>
-                    @endforelse
+        {{-- Postingan pemilik profil --}}
+        <section aria-labelledby="judul-postingan" x-show="tab === 'semua' || tab === 'postingan'" x-cloak>
+            <div class="mb-3 flex items-end justify-between gap-3 px-1">
+                <div>
+                    <h3 id="judul-postingan" class="kub-heading">Postingan</h3>
+                    <p class="text-xs text-gray-500">{{ $pemilik ? 'Yang pernah kamu bagikan di Beranda' : 'Yang pernah dibagikan di Beranda' }}</p>
                 </div>
+                <span class="kub-chip">{{ $postingan->count() }} postingan</span>
+            </div>
 
-                <dl class="mt-5 grid grid-cols-3 gap-3">
-                    @foreach ([['Proyek Selesai', $riwayat->count()], ['Rekomendasi', $rekomendasi->count()], ['Skill', $profil->skills->count()]] as [$label, $angka])
-                        <div class="kub-soft text-center">
-                            <dd class="text-2xl font-bold text-navy">{{ $angka }}</dd>
-                            <dt class="text-xs text-gray-500">{{ $label }}</dt>
-                        </div>
-                    @endforeach
-                </dl>
+            <div class="space-y-4">
+                @forelse ($postingan as $item)
+                    <x-post-card :item="$item" :profil="$profilSaya" />
+                @empty
+                    <x-empty-state title="Belum ada postingan" icon="chat">
+                        {{ $pemilik ? 'Postingan yang kamu buat di Beranda akan muncul di sini.' : 'Pengguna ini belum membagikan postingan.' }}
+                    </x-empty-state>
+                @endforelse
             </div>
         </section>
 
         {{-- Portofolio --}}
-        <section class="kub-card">
+        <section class="kub-card" x-show="tab === 'semua' || tab === 'portofolio'" x-cloak>
             <div class="mb-4 flex items-center justify-between gap-3">
                 <div>
                     <h3 class="kub-heading">Portofolio</h3>
@@ -117,22 +167,50 @@
         </section>
 
         {{-- Riwayat kolaborasi --}}
-        <section class="kub-card">
-            <h3 class="kub-heading">Riwayat Kolaborasi Kampus</h3>
-            <p class="mb-4 text-xs text-gray-500">Jejak kontribusi pada kompetisi dan proyek</p>
+        <section class="kub-card" x-show="tab === 'semua' || tab === 'riwayat'" x-cloak>
+            <div class="mb-4 flex items-start justify-between gap-3">
+                <div class="flex items-start gap-3">
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-tint text-navy"><x-icon name="users" class="h-5 w-5" /></span>
+                    <div>
+                        <h3 class="kub-heading">Riwayat Kolaborasi</h3>
+                        <p class="text-xs text-gray-500">Jejak kontribusi nyata pada kompetisi dan proyek</p>
+                    </div>
+                </div>
+                <span class="kub-chip shrink-0">{{ $riwayat->count() }} Kolaborasi Selesai</span>
+            </div>
 
             <div class="space-y-3">
                 @forelse ($riwayat as $r)
-                    <div class="flex items-center gap-3 rounded-xl bg-surface-tint/70 p-4">
-                        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand-dark"><x-icon name="trophy" class="h-5 w-5" /></span>
-                        <div class="min-w-0 flex-1">
-                            <p class="truncate font-semibold text-navy-deep">{{ $r->judul_proyek }}</p>
-                            <p class="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500">
-                                @if ($r->peran)<x-chip>{{ $r->peran }}</x-chip>@endif
-                                <span>Selesai {{ $r->tanggal_selesai->translatedFormat('d M Y') }}</span>
+                    @php
+                        $tim = $timPerProyek->get($r->id_postingan, collect());
+                        $jumlahTim = max($tim->count(), 1);
+                    @endphp
+                    <article class="flex flex-col gap-3 rounded-2xl bg-surface-tint/70 p-4 ring-1 ring-navy/5 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="min-w-0">
+                            <p class="flex items-center gap-1.5 text-sm font-semibold text-navy-deep">
+                                <x-icon name="check-circle" class="h-4 w-4 shrink-0 text-brand-dark" />
+                                <span class="truncate">{{ $r->judul_proyek }}</span>
+                            </p>
+                            <p class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500">
+                                @if ($r->peran)<span class="inline-flex items-center gap-1"><x-icon name="user" class="h-3.5 w-3.5" /> Peran: <b class="font-semibold text-navy">{{ $r->peran }}</b></span>@endif
+                                <span class="inline-flex items-center gap-1"><x-icon name="calendar" class="h-3.5 w-3.5" /> Selesai: {{ $r->tanggal_selesai->translatedFormat('M Y') }}</span>
                             </p>
                         </div>
-                    </div>
+
+                        <div class="flex shrink-0 items-center gap-2">
+                            <div class="flex -space-x-2">
+                                @foreach ($tim->take(3) as $anggota)
+                                    <a href="{{ route('profil.lihat', $anggota->profil) }}" title="{{ $anggota->profil->user->name }}" class="transition hover:z-10 hover:-translate-y-0.5">
+                                        <x-avatar :user="$anggota->profil->user" :foto="$anggota->profil->fotoUrl()" size="h-8 w-8 text-[10px] !border-2" />
+                                    </a>
+                                @endforeach
+                                @if ($tim->count() > 3)
+                                    <span class="relative z-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-lavender text-[10px] font-semibold text-navy">+{{ $tim->count() - 3 }}</span>
+                                @endif
+                            </div>
+                            <span class="text-xs text-gray-500">{{ $jumlahTim }} Mahasiswa</span>
+                        </div>
+                    </article>
                 @empty
                     <x-empty-state title="Belum ada riwayat kolaborasi" icon="trophy" class="!shadow-none !ring-0 bg-surface-tint/60 py-8" />
                 @endforelse
@@ -140,39 +218,60 @@
         </section>
 
         {{-- Rekomendasi --}}
-        <section class="kub-card" x-data="{ tulis: {{ $errors->has('isi_rekomendasi') ? 'true' : 'false' }} }">
-            <div class="mb-4 flex items-center justify-between gap-3">
-                <div>
-                    <h3 class="kub-heading">Rekomendasi Rekan Tim</h3>
-                    <p class="text-xs text-gray-500">Ulasan dari rekan yang pernah satu tim</p>
+        <section class="kub-card" x-show="tab === 'semua' || tab === 'rekomendasi'" x-cloak
+                 x-data="{ tulis: {{ $errors->has('isi_rekomendasi') ? 'true' : 'false' }} }">
+            <div class="mb-4 flex items-start justify-between gap-3">
+                <div class="flex items-start gap-3">
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand-dark"><x-icon name="chat" class="h-5 w-5" /></span>
+                    <div>
+                        <h3 class="kub-heading">Rekomendasi Rekan Tim</h3>
+                        <p class="text-xs text-gray-500">Ulasan kejujuran dan etos kerja dari rekan lomba</p>
+                    </div>
                 </div>
                 @if ($bolehRekomendasi)
-                    <button type="button" @click="tulis = true" class="kub-btn kub-btn-brand kub-btn-sm"><x-icon name="pencil" class="h-4 w-4" /> Beri Ulasan</button>
+                    <button type="button" @click="tulis = true" class="kub-btn kub-btn-soft kub-btn-sm shrink-0"><x-icon name="pencil" class="h-4 w-4" /> Beri Ulasan</button>
                 @endif
             </div>
 
             <div class="grid gap-4 sm:grid-cols-2">
                 @forelse ($rekomendasi as $rk)
-                    <article class="flex flex-col rounded-xl bg-surface-tint/70 p-4">
-                        <p class="flex-1 text-sm leading-relaxed text-navy-deep">“{{ $rk->isi_rekomendasi }}”</p>
-
-                        <div class="mt-4 flex items-center gap-2">
-                            <x-avatar :user="$rk->pemberi->user" :foto="$rk->pemberi->fotoUrl()" size="h-9 w-9 text-xs" />
-                            <div class="min-w-0 text-xs">
-                                <a href="{{ route('profil.lihat', $rk->pemberi) }}" class="block truncate font-semibold text-navy-deep hover:underline">{{ $rk->pemberi->user->name }}</a>
-                                <span class="text-gray-500">{{ $rk->tanggal_dikirim->translatedFormat('d M Y') }}</span>
+                    @php $konteks = $konteksRekomendasi->get($rk->id_profil_pemberi); @endphp
+                    <article class="flex flex-col rounded-2xl bg-surface-tint/70 p-4 ring-1 ring-navy/5">
+                        <div class="flex items-start gap-3">
+                            <x-avatar :user="$rk->pemberi->user" :foto="$rk->pemberi->fotoUrl()" size="h-10 w-10 text-xs" />
+                            <div class="min-w-0 flex-1">
+                                <a href="{{ route('profil.lihat', $rk->pemberi) }}" class="block truncate text-sm font-semibold text-navy-deep hover:underline">{{ $rk->pemberi->user->name }}</a>
+                                <p class="truncate text-xs text-gray-500">{{ $rk->pemberi->jurusan ?: 'Mahasiswa' }}{{ $rk->pemberi->angkatan ? " · '".substr($rk->pemberi->angkatan, -2) : '' }}</p>
                             </div>
+
+                            @if ($pemilik && $rk->status_laporan === 'tidak_dilaporkan')
+                                <div class="relative" x-data="{ menu: false }" @click.outside="menu = false" @keydown.escape.window="menu = false">
+                                    <button type="button" @click="menu = !menu" class="rounded-full p-1 text-gray-400 hover:bg-white hover:text-navy" aria-label="Menu rekomendasi">
+                                        <x-icon name="ellipsis-vertical" class="h-5 w-5" />
+                                    </button>
+                                    <div x-show="menu" x-cloak x-transition class="absolute right-0 z-10 mt-1 w-36 rounded-xl bg-white py-1 shadow-angkat ring-1 ring-navy/10">
+                                        <form method="POST" action="{{ route('rekomendasi.laporkan', $rk) }}" onsubmit="return confirm('Laporkan rekomendasi ini ke admin?')">
+                                            @csrf
+                                            <button class="block w-full px-4 py-2 text-left text-xs font-medium text-red-600 hover:bg-red-50">Laporkan</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+
+                        <p class="mt-3 flex-1 text-sm italic leading-relaxed text-navy-deep">&ldquo;{{ $rk->isi_rekomendasi }}&rdquo;</p>
+
+                        <div class="mt-4 flex items-center justify-between gap-2 text-xs">
+                            @if ($konteks)
+                                <span class="inline-flex min-w-0 items-center gap-1 font-medium text-brand-dark"><x-icon name="check-circle" class="h-4 w-4 shrink-0" /><span class="truncate">Partner di {{ $konteks }}</span></span>
+                            @else
+                                <span></span>
+                            @endif
+                            <span class="shrink-0 text-gray-500">{{ $rk->tanggal_dikirim->translatedFormat('d M Y') }}</span>
                         </div>
 
                         @if ($pemilik && $rk->status_laporan === 'dilaporkan')
                             <x-chip tone="brand" class="mt-3 self-start">Sedang ditinjau admin</x-chip>
-                        @endif
-
-                        @if ($pemilik && $rk->status_laporan === 'tidak_dilaporkan')
-                            <form method="POST" action="{{ route('rekomendasi.laporkan', $rk) }}" class="mt-2" onsubmit="return confirm('Laporkan rekomendasi ini ke admin?')">
-                                @csrf
-                                <button class="text-xs font-medium text-red-600 hover:underline">Laporkan</button>
-                            </form>
                         @endif
                     </article>
                 @empty

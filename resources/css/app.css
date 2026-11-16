@@ -13,6 +13,11 @@
 @layer base {
     body {
         @apply bg-canvas text-navy-deep antialiased;
+        /* Latar berlapis cahaya lembut (oranye di kanan atas, biru di kiri) supaya tidak terlihat datar. */
+        background-image:
+            radial-gradient(48rem 26rem at 88% -8%, rgb(245 184 109 / 0.16), transparent 60%),
+            radial-gradient(44rem 28rem at -8% 8%, rgb(217 225 255 / 0.75), transparent 60%);
+        background-attachment: fixed;
     }
 
     ::selection {
@@ -29,12 +34,12 @@
 @layer components {
     /* Kartu putih yang timbul di atas latar canvas. */
     .kub-card {
-        @apply rounded-kub bg-white p-4 shadow-kartu ring-1 ring-navy/5 sm:p-5;
+        @apply rounded-2xl bg-white p-4 shadow-kartu ring-1 ring-navy/5 sm:p-5;
     }
 
     /* Kartu bisa diklik atau disorot: naik sedikit saat disentuh. */
     .kub-card-hover {
-        @apply transition duration-200 hover:-translate-y-0.5 hover:shadow-angkat;
+        @apply transition duration-300 hover:-translate-y-1 hover:shadow-angkat hover:ring-brand/30;
     }
 
     /* Panel abu-abu lembut untuk blok di dalam kartu. */
@@ -49,12 +54,12 @@
 
     /* Blok biru tua berisi info (Lomba, Tanggal, Slot, Skill). */
     .kub-info {
-        @apply rounded-lg bg-navy-dark px-3 py-2 text-xs text-white;
+        @apply rounded-xl bg-gradient-to-br from-navy to-navy-dark px-3.5 py-2.5 text-xs text-white shadow-sm ring-1 ring-white/10;
     }
 
     /* Chip kecil untuk skill dan status. */
     .kub-chip {
-        @apply inline-flex items-center gap-1 rounded-full bg-surface-tint px-2.5 py-0.5 text-xs font-medium text-navy;
+        @apply inline-flex items-center gap-1 rounded-full bg-surface-tint px-2.5 py-0.5 text-xs font-medium text-navy ring-1 ring-navy/5;
     }
 
     .kub-chip-brand {
@@ -82,10 +87,10 @@
         @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold shadow-sm transition duration-150 hover:-translate-y-px hover:shadow-md disabled:pointer-events-none disabled:opacity-50;
     }
     .kub-btn-brand {
-        @apply bg-brand text-navy-deep hover:bg-brand-dark;
+        @apply bg-gradient-to-r from-brand to-brand-dark text-navy-deep shadow-md shadow-brand/30 hover:shadow-lg hover:shadow-brand/40 hover:brightness-105;
     }
     .kub-btn-navy {
-        @apply bg-navy text-white hover:bg-navy-dark;
+        @apply bg-gradient-to-r from-navy to-navy-dark text-white shadow-md shadow-navy/30 hover:shadow-lg hover:shadow-navy/40;
     }
     .kub-btn-soft {
         @apply bg-surface-tint text-navy shadow-none hover:bg-lavender;
@@ -113,7 +118,7 @@
 
     /* Filter kategori beranda (Semua, Cari Tim, Info Lomba). */
     .kub-filter {
-        @apply inline-flex gap-1 rounded-full bg-lavender/60 p-1;
+        @apply inline-flex gap-1 rounded-full bg-white p-1 shadow-kartu ring-1 ring-navy/5;
     }
     .kub-filter-item {
         @apply rounded-full px-4 py-1.5 text-sm font-semibold text-navy transition hover:bg-white/70;
@@ -128,6 +133,22 @@
     }
     .kub-dropzone.seret {
         @apply border-brand bg-brand-soft/60;
+    }
+
+
+    /* Kartu identitas profil (tanpa banner): avatar ber-cincin gradasi, statistik berpembatas. */
+    .kub-profil-kartu {
+        @apply relative overflow-hidden rounded-3xl bg-white p-5 shadow-kartu ring-1 ring-navy/5 sm:p-7;
+        background-image:
+            radial-gradient(circle at 100% 0%, rgb(245 184 109 / 0.16), transparent 45%),
+            radial-gradient(circle at 0% 100%, rgb(217 225 255 / 0.55), transparent 45%);
+    }
+    .kub-avatar-cincin {
+        @apply shrink-0 rounded-full p-1 shadow-angkat;
+        background-image: linear-gradient(135deg, #203967, #D9E1FF 50%, #F5B86D);
+    }
+    .kub-statistik > div + div {
+        @apply border-l border-navy/10 pl-5;
     }
 
     /* Panel biru tua dengan lingkaran lembut (banner profil dan sambutan onboarding). */
@@ -153,5 +174,21 @@
         bottom: -6rem;
         height: 18rem;
         width: 18rem;
+    }
+}
+
+/* Kartu muncul pelan dari bawah (feed). Pakai "backwards" supaya tidak ada transform tersisa setelah selesai. */
+@keyframes kub-naik {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+}
+.kub-masuk {
+    animation: kub-naik 0.45s ease backwards;
+}
+@media (prefers-reduced-motion: reduce) {
+    .kub-masuk {
+        animation: none;
     }
 }

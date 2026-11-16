@@ -6,6 +6,7 @@
     'judul' => 'Pilih gambar',
     'petunjuk' => null,
     'webp' => false,           // true jika server menerima WebP
+    'potong' => false,         // true = foto profil: buka editor geser & zoom (crop persegi) sebelum dipilih
     'bentuk' => 'kotak',       // kotak = area besar (profil, portofolio), tombol = tombol kecil (komposer postingan)
 ])
 
@@ -13,7 +14,7 @@
     Unggah gambar dengan pratinjau: gambar yang dipilih langsung tampil, bisa dihapus sebelum dikirim.
     Logikanya di resources/js/unggah-gambar.js. Pesan galat dari server tampil lewat <x-input-error>.
 --}}
-<div x-data="unggahGambar({ multiple: @js((bool) $multiple), maksMb: {{ (int) $maks }}, maksFile: {{ (int) $maksFile }}, webp: @js((bool) $webp) })" {{ $attributes->only('class') }}>
+<div x-data="unggahGambar({ multiple: @js((bool) $multiple), maksMb: {{ (int) $maks }}, maksFile: {{ (int) $maksFile }}, webp: @js((bool) $webp), potong: @js((bool) $potong) })" {{ $attributes->only('class') }}>
     <input x-ref="input" type="file" name="{{ $name }}" accept="{{ $webp ? 'image/png,image/jpeg,image/webp' : 'image/png,image/jpeg' }}" @if ($multiple) multiple @endif
            class="sr-only" @change="pilih($event)">
 
@@ -51,6 +52,39 @@
             </figure>
         </template>
     </div>
+
+
+    {{-- Editor crop foto: geser untuk memposisikan, slider untuk zoom --}}
+    @if ($potong)
+        <div x-show="crop.buka" x-cloak class="fixed inset-0 z-[60] flex items-center justify-center p-4" @keydown.escape.window="batalCrop()">
+            <div class="absolute inset-0 bg-navy-deep/70 backdrop-blur-sm" @click="batalCrop()"></div>
+
+            <div class="relative w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-angkat">
+                <h3 class="text-lg font-bold text-navy-deep">Atur Foto Profil</h3>
+                <p class="mt-1 text-xs text-gray-500">Geser foto untuk memilih bagian yang tampil, geser slider untuk zoom.</p>
+
+                <div class="mx-auto mt-4 touch-none select-none overflow-hidden rounded-full bg-surface-tint ring-4 ring-brand/60"
+                     :class="crop.seret ? 'cursor-grabbing' : 'cursor-grab'"
+                     :style="{ width: bingkai + 'px', height: bingkai + 'px', maxWidth: '100%' }"
+                     @pointerdown.prevent="mulaiSeret($event)" @pointermove="seret($event)"
+                     @pointerup="akhiriSeret()" @pointercancel="akhiriSeret()">
+                    <template x-if="crop.img">
+                        <img :src="crop.src" alt="Foto yang diatur" draggable="false" class="pointer-events-none relative max-w-none"
+                             :style="{ width: crop.img.naturalWidth * crop.skala + 'px', height: crop.img.naturalHeight * crop.skala + 'px', left: crop.x + 'px', top: crop.y + 'px' }">
+                    </template>
+                </div>
+
+                <input type="range" aria-label="Zoom" class="mt-5 w-full accent-[#EE9F44]"
+                       :min="crop.min" :max="crop.min * 4" step="0.001" :value="crop.skala"
+                       @input="zoom($event.target.value)">
+
+                <div class="mt-5 flex justify-end gap-2">
+                    <button type="button" @click="batalCrop()" class="kub-btn kub-btn-soft kub-btn-sm">Batal</button>
+                    <button type="button" @click="simpanCrop()" class="kub-btn kub-btn-brand kub-btn-sm">Pakai Foto Ini</button>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <p x-show="galat" x-cloak x-text="galat" class="kub-error mt-2" role="alert"></p>
     {{ $slot }}
