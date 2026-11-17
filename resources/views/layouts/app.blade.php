@@ -16,7 +16,8 @@
     $menu = $admin
         ? [['Laporan Rekomendasi', url('/admin/rekomendasi'), request()->routeIs('admin.*'), 'shield']]
         : [
-            ['Beranda', url('/dashboard'), request()->routeIs('dashboard', 'beranda', 'postingan.*', 'pelamar.*'), 'home'],
+            ['Beranda', url('/dashboard'),
+             request()->routeIs('dashboard', 'beranda', 'postingan.*', 'pelamar.*'), 'home'],
             ['Pencarian', url('/search'), request()->is('search*'), 'search'],
             ['Pesan', url('/dm'), request()->is('dm*'), 'chat'],
             ['Profil', url('/profil'), request()->routeIs('profil.*', 'portofolio.*'), 'user'],
@@ -47,7 +48,7 @@
                 @include('layouts.sidebar', ['menu' => $menu])
 
                 <div class="flex min-w-0 flex-1 justify-center">
-                    <div class="flex w-full max-w-[1180px]">
+                    <div class="flex w-full max-w-[1280px]">
                         <div class="min-w-0 flex-1">
                             @isset($header)
                                 <header class="px-4 pb-1 pt-6 sm:px-6 lg:px-8">
@@ -60,7 +61,7 @@
                             </main>
                         </div>
 
-                        <aside class="hidden w-[279px] shrink-0 pr-4 pt-[25px] xl:ml-4 xl:block">
+                        <aside class="hidden w-[340px] shrink-0 pr-4 pt-[25px] xl:ml-4 xl:block">
                             <div class="sticky top-[110px]">
                                 @isset($aside)
                                     {{ $aside }}

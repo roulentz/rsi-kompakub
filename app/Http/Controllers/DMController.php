@@ -93,7 +93,7 @@ class DMController extends Controller
                 'id' => $p->id,
                 'isi_pesan' => $p->isi_pesan,
                 'milik_saya' => $p->pengirim_id == auth()->id(),
-                'waktu_kirim' => $p->waktu_kirim->format('H:i'),
+                'waktu_kirim' => $p->waktu_kirim->copy()->timezone('Asia/Jakarta')->format('H:i'),
             ]);
 
         return response()->json($daftar);
