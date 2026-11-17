@@ -40,7 +40,7 @@ class SearchController extends Controller
                     ->withQueryString();
             } else {
                 // Search Posts
-                $hasil = Postingan::with(['pembuat.user'])
+                $hasil = Postingan::with(['pembuat.user', 'lamaran'])
                     ->where(function ($query) use ($pola) {
                         $query->where('nama_lomba', 'like', $pola)
                             ->orWhere('deskripsi', 'like', $pola)
@@ -56,6 +56,8 @@ class SearchController extends Controller
             }
         }
 
-        return view('search.index', compact('keyword', 'type', 'hasil'));
+        $profil = $request->user()?->profil;
+
+        return view('search.index', compact('keyword', 'type', 'hasil', 'profil'));
     }
 }

@@ -52,9 +52,19 @@
         @apply rounded-kub border border-gray-100 bg-white p-4 shadow-kartu sm:p-5;
     }
 
-    /* Blok biru tua berisi info (Lomba, Tanggal, Slot, Skill). */
+    /* Panel info postingan (Tanggal, Slot, Skill): kaca terang di atas latar gradasi lembut. */
+    .kub-info-panel {
+        @apply rounded-2xl p-2.5 ring-1 ring-navy/5;
+        background-image: linear-gradient(135deg, rgb(217 225 255 / 0.6), rgb(255 255 255 / 0.55) 45%, rgb(245 184 109 / 0.25));
+    }
     .kub-info {
-        @apply rounded-xl bg-gradient-to-br from-navy to-navy-dark px-3.5 py-2.5 text-xs text-white shadow-sm ring-1 ring-white/10;
+        @apply rounded-xl bg-white/75 px-3.5 py-3 text-xs text-navy-deep shadow-sm ring-1 ring-white backdrop-blur-md;
+    }
+    .kub-info-ikon {
+        @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand to-brand-dark text-white shadow-md shadow-brand/30;
+    }
+    .kub-info-label {
+        @apply text-[10px] font-semibold uppercase tracking-wider text-navy/55;
     }
 
     /* Chip kecil untuk skill dan status. */

@@ -3,7 +3,7 @@
 {{--
     Formulir buat postingan di Beranda. Pilih kategori dulu: Umum (tampil di tab Semua) atau Info Lomba, keduanya
     dikirim ke post-biasa.store (MZ). Pilihan Cari Tim membuka dialog Make A Post milik SH (postingan/_form-cari-tim).
-    Foto memakai <x-unggah-gambar> sehingga pratinjaunya langsung terlihat.
+    Foto (sampai 10) memakai <x-unggah-gambar> sehingga pratinjaunya langsung terlihat.
 --}}
 @php
     $kategoriAwal = old('kategori_komposer', 'Biasa');
@@ -71,15 +71,11 @@
             </div>
 
             {{-- Foto dengan pratinjau --}}
-            <x-unggah-gambar name="foto" bentuk="tombol" judul="Tambahkan Foto" :maks="2" :webp="true" />
+            <x-unggah-gambar name="foto[]" bentuk="tombol" judul="Tambahkan Foto" :multiple="true" :maks="10" :maksFile="10" :kompres="true" :webp="true" />
             @error('foto')<p class="kub-error">{{ $message }}</p>@enderror
         </div>
 
-        <div class="flex flex-wrap items-center justify-between gap-3 rounded-b-kub bg-surface-tint/50 px-5 py-3">
-            <p class="text-xs text-gray-500">
-                <span x-show="kategori === 'Biasa'">Postingan umum tampil di tab Semua.</span>
-                <span x-show="kategori === 'Info Lomba'" x-cloak>Tampil di tab Info Lomba untuk semua mahasiswa.</span>
-            </p>
+        <div class="flex items-center justify-end rounded-b-kub bg-surface-tint/50 px-5 py-3">
             <button type="submit" class="kub-btn kub-btn-brand">
                 <x-icon name="send" class="h-4 w-4" />
                 Posting

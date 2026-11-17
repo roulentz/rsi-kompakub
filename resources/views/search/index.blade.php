@@ -82,42 +82,9 @@
                         </div>
                     @endforeach
                 @else
+                    {{-- Sama persis dengan kartu di Beranda --}}
                     @foreach ($hasil as $post)
-                        <div class="rounded-2xl bg-white p-5 shadow-sm">
-                            <a href="{{ route('postingan.show', $post->id_postingan) }}"
-                               class="block">
-
-                                <p class="text-sm font-semibold text-navy">
-                                    {{ $post->pembuat?->user?->name ?? 'Mahasiswa' }}
-                                </p>
-
-                                <p class="mt-1 text-xs text-gray-500">
-                                    {{ $post->created_at?->format('d M Y') ?? '' }}
-                                </p>
-
-                                @if ($post->nama_lomba)
-                                    <h2 class="mt-3 text-lg font-bold text-navy">
-                                        {{ $post->nama_lomba }}
-                                    </h2>
-                                @endif
-
-                                <p class="mt-3 whitespace-pre-line text-sm text-gray-700">
-                                    {{ $post->deskripsi }}
-                                </p>
-
-                                <div class="mt-3 flex flex-wrap gap-2">
-                                    <span class="rounded-full bg-lavender px-3 py-1 text-xs text-navy">
-                                        {{ $post->kategori }}
-                                    </span>
-
-                                    @if ($post->tag_skill)
-                                        <span class="text-xs text-gray-500">
-                                            {{ $post->tag_skill }}
-                                        </span>
-                                    @endif
-                                </div>
-                            </a>
-                        </div>
+                        <x-post-card :item="$post" :profil="$profil" />
                     @endforeach
                 @endif
             </div>

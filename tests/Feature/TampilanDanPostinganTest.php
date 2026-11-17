@@ -58,9 +58,9 @@ class TampilanDanPostinganTest extends TestCase
         $this->assertStringContainsString('Halo kampus, ini postingan umum', $html);
         $this->assertStringContainsString('Techpreneur 2026', $html);
         $this->assertStringContainsString('Skill Required', $html);
-        // lencana "Biasa" dihapus, "Cari Tim" tetap ada pada kartu
+        // lencana kategori ("Biasa", "Cari Tim") sudah dihapus dari pojok kanan kartu
         $this->assertDoesNotMatchRegularExpression('/kub-chip[^>]*>\s*Biasa\s*</', $html);
-        $this->assertMatchesRegularExpression('/kub-chip[^>]*>\s*Cari Tim\s*</', $html);
+        $this->assertDoesNotMatchRegularExpression('/kub-chip[^>]*>\s*Cari Tim\s*</', $html);
     }
 
     public function test_komposer_menyediakan_pilihan_kategori_dan_pratinjau_foto(): void

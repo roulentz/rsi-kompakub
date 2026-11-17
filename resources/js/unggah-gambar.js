@@ -2,8 +2,37 @@
 // hapus yang salah sebelum dikirim. Dipakai lewat komponen <x-unggah-gambar>.
 const BINGKAI = 280; // ukuran bingkai crop di layar (px)
 const HASIL = 512;   // ukuran foto hasil crop (px, persegi)
+const SISI_MAKS = 1600; // sisi terpanjang foto postingan setelah diperkecil (px)
 
-export default ({ multiple = false, maksMb = 2, maksFile = 20, webp = false, potong = false } = {}) => ({
+// Perkecil foto besar (sisi terpanjang 1600 px, JPEG 85%) agar unggahan 10 foto tetap ringan.
+// Gagal atau tidak lebih kecil: pakai berkas asli.
+async function perkecil(file) {
+    try {
+        const bmp = await createImageBitmap(file);
+        const skala = Math.min(1, SISI_MAKS / Math.max(bmp.width, bmp.height));
+        if (skala === 1 && file.size <= 400 * 1024) {
+            bmp.close?.();
+            return file;
+        }
+        const lebar = Math.round(bmp.width * skala);
+        const tinggi = Math.round(bmp.height * skala);
+        const kanvas = document.createElement('canvas');
+        kanvas.width = lebar;
+        kanvas.height = tinggi;
+        const ctx = kanvas.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, lebar, tinggi);
+        ctx.drawImage(bmp, 0, 0, lebar, tinggi);
+        bmp.close?.();
+        const blob = await new Promise((selesai) => kanvas.toBlob(selesai, 'image/jpeg', 0.85));
+        if (!blob || blob.size >= file.size) return file;
+        return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' });
+    } catch {
+        return file;
+    }
+}
+
+export default ({ multiple = false, maksMb = 2, maksFile = 20, webp = false, potong = false, kompres = false } = {}) => ({
     multiple,
     files: [],
     items: [],
@@ -22,7 +51,7 @@ export default ({ multiple = false, maksMb = 2, maksFile = 20, webp = false, pot
         this.tambah(Array.from(event.dataTransfer.files));
     },
 
-    tambah(berkas) {
+    async tambah(berkas) {
         this.galat = '';
         const diterima = multiple ? [...this.files] : [];
 
@@ -39,7 +68,7 @@ export default ({ multiple = false, maksMb = 2, maksFile = 20, webp = false, pot
                 this.galat = `Maksimal ${maksFile} gambar.`;
                 break;
             }
-            diterima.push(f);
+            diterima.push(kompres ? await perkecil(f) : f);
             if (!multiple) {
                 break;
             }

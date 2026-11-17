@@ -39,16 +39,18 @@
                         · {{ $postingan->created_at?->locale('id')->diffForHumans() }}
                     </p>
                 </div>
-                <x-chip tone="brand">{{ $postingan->kategori }}</x-chip>
+                @if ($postingan->kategori === 'Cari Tim' && $postingan->status === 'Selesai')
+                    <span class="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600 ring-1 ring-gray-200"><x-icon name="check-circle" class="h-3.5 w-3.5" /> Lomba telah selesai</span>
+                @endif
             </div>
 
             @if ($postingan->nama_lomba)
                 <h1 class="mt-3 text-xl font-bold text-navy">{{ $postingan->nama_lomba }}</h1>
 
-                <div class="mt-3 space-y-2 rounded-lg bg-white p-2">
+                <div class="kub-info-panel mt-3 space-y-2">
                     @if ($tanggal)
                         <div class="kub-info">
-                            <p class="opacity-80">Tanggal</p>
+                            <p class="kub-info-label">Tanggal lomba</p>
                             <p class="mt-0.5 text-sm font-semibold">{{ $tanggal }}</p>
                         </div>
                     @endif
@@ -56,22 +58,22 @@
                     @if ($cariTim)
                         <div class="kub-info">
                             <div class="flex items-center justify-between">
-                                <span>Slot Anggota</span>
-                                <span>{{ $slotTerisi }}/{{ $postingan->jumlah_anggota }}</span>
+                                <span class="kub-info-label">Slot Anggota</span>
+                                <span class="font-semibold">{{ $slotTerisi }}/{{ $postingan->jumlah_anggota }}</span>
                             </div>
                             <div class="mt-2 flex gap-1.5" aria-hidden="true">
                                 @for ($i = 1; $i <= $postingan->jumlah_anggota; $i++)
-                                    <i class="h-2.5 flex-1 rounded-sm {{ $i <= $slotTerisi ? 'bg-brand' : 'bg-lavender' }}"></i>
+                                    <i class="h-2 flex-1 rounded-full {{ $i <= $slotTerisi ? 'bg-gradient-to-r from-brand to-brand-dark' : 'bg-navy/10' }}"></i>
                                 @endfor
                             </div>
                         </div>
 
                         @if ($skillDibutuhkan->isNotEmpty())
                             <div class="kub-info">
-                                <p class="opacity-80">Skill Required</p>
+                                <p class="kub-info-label">Skill Required</p>
                                 <div class="mt-1 flex flex-wrap gap-1.5">
                                     @foreach ($skillDibutuhkan as $skill)
-                                        <span class="rounded-full bg-lavender px-2.5 py-0.5 text-xs font-medium text-navy">{{ $skill }}</span>
+                                        <span class="rounded-full bg-white px-2.5 py-0.5 text-xs font-medium text-navy shadow-sm ring-1 ring-navy/10">{{ $skill }}</span>
                                     @endforeach
                                 </div>
                             </div>
@@ -84,9 +86,7 @@
                 <p class="mt-3 whitespace-pre-line rounded-lg bg-white p-3 text-sm text-navy">{{ $postingan->deskripsi }}</p>
             @endif
 
-            @if ($postingan->foto)
-                <img src="{{ asset('storage/'.$postingan->foto) }}" alt="Foto postingan" class="mt-3 max-h-80 w-full rounded-lg object-cover">
-            @endif
+            <x-galeri-foto :fotos="$postingan->daftarFoto()" class="mt-3" />
 
             <div class="mt-4 flex flex-wrap items-center gap-2">
                 @if ($bisaLamar)

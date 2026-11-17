@@ -50,7 +50,7 @@
                       class="block w-full resize-none rounded-lg border-0 bg-white px-4 py-2.5 text-xs text-navy placeholder:text-muted/70 focus:ring-2 focus:ring-brand">{{ $gagal ? old('deskripsi') : '' }}</textarea>
 
             {{-- Foto opsional (poster lomba, dsb.) dengan pratinjau --}}
-            <x-unggah-gambar name="foto" bentuk="tombol" judul="Tambahkan Foto" :maks="2" :webp="true" />
+            <x-unggah-gambar name="foto[]" bentuk="tombol" judul="Tambahkan Foto" :multiple="true" :maks="10" :maksFile="10" :kompres="true" :webp="true" />
         </div>
 
         @if ($gagal && (session('pesan_peringatan') || $errors->any()))

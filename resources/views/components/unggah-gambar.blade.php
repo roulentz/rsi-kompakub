@@ -6,6 +6,7 @@
     'judul' => 'Pilih gambar',
     'petunjuk' => null,
     'webp' => false,           // true jika server menerima WebP
+    'kompres' => false,        // true = foto besar diperkecil di browser (maks. 1600 px) sebelum dikirim, supaya unggahan ringan
     'potong' => false,         // true = foto profil: buka editor geser & zoom (crop persegi) sebelum dipilih
     'bentuk' => 'kotak',       // kotak = area besar (profil, portofolio), tombol = tombol kecil (komposer postingan)
 ])
@@ -14,15 +15,15 @@
     Unggah gambar dengan pratinjau: gambar yang dipilih langsung tampil, bisa dihapus sebelum dikirim.
     Logikanya di resources/js/unggah-gambar.js. Pesan galat dari server tampil lewat <x-input-error>.
 --}}
-<div x-data="unggahGambar({ multiple: @js((bool) $multiple), maksMb: {{ (int) $maks }}, maksFile: {{ (int) $maksFile }}, webp: @js((bool) $webp), potong: @js((bool) $potong) })" {{ $attributes->only('class') }}>
+<div x-data="unggahGambar({ multiple: @js((bool) $multiple), maksMb: {{ (int) $maks }}, maksFile: {{ (int) $maksFile }}, webp: @js((bool) $webp), potong: @js((bool) $potong), kompres: @js((bool) $kompres) })" {{ $attributes->only('class') }}>
     <input x-ref="input" type="file" name="{{ $name }}" accept="{{ $webp ? 'image/png,image/jpeg,image/webp' : 'image/png,image/jpeg' }}" @if ($multiple) multiple @endif
            class="sr-only" @change="pilih($event)">
 
     {{-- Pemicu --}}
     @if ($bentuk === 'tombol')
-        <button type="button" @click="buka()" class="kub-btn kub-btn-soft kub-btn-sm">
+        <button type="button" @click="buka()" :disabled="multiple && items.length >= {{ (int) $maksFile }}" class="kub-btn kub-btn-soft kub-btn-sm disabled:cursor-not-allowed disabled:opacity-50">
             <x-icon name="image" class="h-4 w-4" />
-            <span x-text="items.length ? 'Ganti Foto' : @js($judul)"></span>
+            <span x-text="multiple ? (items.length ? 'Tambah Foto (' + items.length + '/{{ (int) $maksFile }})' : @js($judul)) : (items.length ? 'Ganti Foto' : @js($judul))"></span>
         </button>
     @else
         <label x-show="multiple || items.length === 0" @click.prevent="buka()"

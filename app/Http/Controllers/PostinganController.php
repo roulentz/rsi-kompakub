@@ -8,6 +8,7 @@ use App\Models\Postingan;
 use App\Models\RiwayatKolaborasi;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\Request;
@@ -24,8 +25,9 @@ class PostinganController extends Controller
             ...$data,
             'id_pembuat' => $request->user()->profil->id_profil,
             'kategori' => 'Cari Tim',
-            'foto' => $request->hasFile('foto') ? $request->file('foto')->store('postingan', 'public') : null,
         ]);
+
+        $postingan->simpanFoto(Arr::wrap($request->file('foto')));
 
         return redirect()->route('postingan.show', $postingan->id_postingan)->with([
             'status' => 'Postingan berhasil diterbitkan',

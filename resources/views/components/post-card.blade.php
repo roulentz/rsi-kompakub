@@ -30,18 +30,10 @@
 
 
 <div class="flex shrink-0 items-center gap-2">
-    @if ($cariTim || $infoLomba)
-        <div class="flex items-center gap-1.5">
-            @if ($cariTim && $item->status === 'Selesai')
-                <x-chip class="!bg-emerald-50 !text-emerald-700">
-                    Selesai
-                </x-chip>
-            @endif
-
-            <x-chip :tone="$cariTim ? 'brand' : 'navy'">
-                {{ $item->kategori }}
-            </x-chip>
-        </div>
+    @if ($cariTim && $item->status === 'Selesai')
+        <span class="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600 ring-1 ring-gray-200">
+            <x-icon name="check-circle" class="h-3.5 w-3.5" /> Lomba telah selesai
+        </span>
     @endif
 
     @if (Auth::user()->isAdmin())
@@ -79,38 +71,44 @@
 
     @if ($item->nama_lomba)
         <h3 class="text-lg font-bold text-navy-deep">{{ $item->nama_lomba }}</h3>
+    @endif
 
-        <div class="grid gap-2 sm:grid-cols-2">
-            <div class="kub-info flex items-center gap-3">
-                <x-icon name="trophy" class="h-5 w-5 shrink-0 text-brand" />
-                <div class="min-w-0"><p class="text-[10px] uppercase tracking-wide text-white/60">Lomba</p><p class="truncate text-sm font-semibold">{{ $item->nama_lomba }}</p></div>
-            </div>
+    @if ($item->waktu_perlombaan || $cariTim)
+        <div class="kub-info-panel grid gap-2.5 sm:grid-cols-2">
             @if ($item->waktu_perlombaan)
-                <div class="kub-info flex items-center gap-3">
-                    <x-icon name="calendar" class="h-5 w-5 shrink-0 text-brand" />
-                    <div><p class="text-[10px] uppercase tracking-wide text-white/60">Tanggal</p><p class="text-sm font-semibold">{{ $item->waktu_perlombaan->translatedFormat('d F Y') }}</p></div>
+                <div class="kub-info flex items-center gap-3 {{ $cariTim ? '' : 'sm:col-span-2' }}">
+                    <span class="kub-info-ikon"><x-icon name="calendar" class="h-5 w-5" /></span>
+                    <div class="min-w-0">
+                        <p class="kub-info-label">Tanggal lomba</p>
+                        <p class="text-sm font-semibold">{{ $item->waktu_perlombaan->translatedFormat('d F Y') }}</p>
+                    </div>
                 </div>
             @endif
 
             @if ($cariTim)
-                <div class="kub-info sm:col-span-2">
-                    <div class="flex items-center justify-between">
-                        <p class="flex items-center gap-2 text-[10px] uppercase tracking-wide text-white/60"><x-icon name="users" class="h-4 w-4 text-brand" /> Slot Anggota</p>
-                        <p class="text-sm font-semibold">{{ $terisi }}/{{ $slot }}</p>
-                    </div>
-                    <div class="mt-2 flex gap-1.5" aria-hidden="true">
-                        @for ($i = 1; $i <= $slot; $i++)
-                            <span class="h-1.5 flex-1 rounded-full {{ $i <= $terisi ? 'bg-brand' : 'bg-white/25' }}"></span>
-                        @endfor
+                <div class="kub-info">
+                    <div class="flex items-center gap-3">
+                        <span class="kub-info-ikon"><x-icon name="users" class="h-5 w-5" /></span>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center justify-between gap-2">
+                                <p class="kub-info-label">Slot Anggota</p>
+                                <p class="text-sm font-semibold">{{ $terisi }}/{{ $slot }}@if ($terisi >= $slot) <span class="ms-1 text-[10px] font-medium text-gray-500">penuh</span>@endif</p>
+                            </div>
+                            <div class="mt-1.5 flex gap-1" aria-hidden="true">
+                                @for ($i = 1; $i <= $slot; $i++)
+                                    <span class="h-1.5 flex-1 rounded-full {{ $i <= $terisi ? 'bg-gradient-to-r from-brand to-brand-dark' : 'bg-navy/10' }}"></span>
+                                @endfor
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 @if ($skillTag->isNotEmpty())
                     <div class="kub-info sm:col-span-2">
-                        <p class="flex items-center gap-2 text-[10px] uppercase tracking-wide text-white/60"><x-icon name="tag" class="h-4 w-4 text-brand" /> Skill Required</p>
+                        <p class="kub-info-label flex items-center gap-1.5"><x-icon name="tag" class="h-3.5 w-3.5 text-brand-dark" /> Skill Required</p>
                         <div class="mt-2 flex flex-wrap gap-1.5">
                             @foreach ($skillTag as $skill)
-                                <span class="rounded-full bg-lavender px-2.5 py-0.5 text-xs font-medium text-navy">{{ $skill }}</span>
+                                <span class="rounded-full bg-white px-2.5 py-0.5 text-xs font-medium text-navy shadow-sm ring-1 ring-navy/10">{{ $skill }}</span>
                             @endforeach
                         </div>
                     </div>
@@ -123,11 +121,7 @@
         <p class="whitespace-pre-line text-sm leading-relaxed text-gray-700">{{ $item->deskripsi }}</p>
     @endif
 
-    @if ($item->foto)
-        <div class="overflow-hidden rounded-xl bg-surface-tint ring-1 ring-navy/10">
-            <img src="{{ '/storage/'.$item->foto }}" alt="Foto postingan" loading="lazy" class="max-h-96 w-full object-cover">
-        </div>
-    @endif
+    <x-galeri-foto :fotos="$item->daftarFoto()" />
 
     <footer class="flex flex-wrap items-center justify-end gap-2 border-t border-navy/5 pt-3">
         <a href="{{ route('postingan.show', $item->id_postingan) }}" class="kub-btn kub-btn-soft kub-btn-sm">Lihat Detail</a>
