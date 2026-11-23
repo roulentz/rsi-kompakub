@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class LamaranController extends Controller
 {
-    // PCT-PC06: kirim lamaran lalu beri tahu pembuat postingan
+    // EFP-PC04 & EFP-PC05: Validasi & simpan lamaran + kirim notifikasi ke pembuat postingan
     public function store(Request $request, int $postingan_id): RedirectResponse
     {
         $profil = $request->user()->profil;
