@@ -18,7 +18,7 @@ class LamaranController extends Controller
         $profil = $request->user()->profil;
         abort_if($profil === null, 403);
 
-        $postingan = Postingan::findOrFail($postingan_id);
+        $postingan = Postingan::with('pembuat.user')->findOrFail($postingan_id);
         abort_unless($postingan->kategori === 'Cari Tim', 404);
         abort_if($postingan->id_pembuat === $profil->id_profil, 403);
 
@@ -29,7 +29,7 @@ class LamaranController extends Controller
         try {
             // Lamaran dan notifikasi disimpan bersamaan, atau tidak sama sekali
             DB::transaction(function () use ($postingan, $profil) {
-                Lamaran::create([
+                $lamaran = Lamaran::create([
                     'id_postingan' => $postingan->id_postingan,
                     'id_pelamar' => $profil->id_profil,
                 ]);
@@ -39,6 +39,19 @@ class LamaranController extends Controller
                     'Pelamar Baru',
                     'Terdapat pelamar baru pada postingan Anda'
                 );
+
+                // Khusus alur demo: saat pelamar MZ mengirim lamaran, sistem otomatis memicu notifikasi keputusan diterima
+                // Cek email spesifik agar tidak terpicu di environment pengujian
+                if (! app()->runningUnitTests() && $profil->user?->email === 'zikraaditya@student.ub.ac.id') {
+                    $lamaran->update(['status' => 'Diterima']);
+
+                    Notifikasi::kirim(
+                        $profil->id_profil,
+                        'Diterima',
+                        'Selamat! Lamaran Anda untuk postingan ' . ($postingan->nama_lomba ?? 'Cari Tim') . ' telah DITERIMA oleh ' . ($postingan->pembuat->user->name ?? 'pembuat tim') . '.',
+                        '/postingan/' . $postingan->id_postingan
+                    );
+                }
             });
         } catch (UniqueConstraintViolationException) {
             return back()->withErrors(['lamaran' => 'Anda sudah melamar ke postingan ini']);

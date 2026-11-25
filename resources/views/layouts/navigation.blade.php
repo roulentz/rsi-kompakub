@@ -3,7 +3,14 @@
     Navbar atas: logo, pencarian, notifikasi, menu akun, dan menu HP.
     $menu berasal dari layouts/app.blade.php.
 --}}
-@php($admin = Auth::user()->role === 'admin')
+@php
+    $user = Auth::user();
+    $admin = $user && $user->role === 'admin';
+    $profilSaya = $user?->profil;
+    $notifBelumDibaca = (! $admin && $profilSaya)
+        ? \App\Models\Notifikasi::where('id_penerima', $profilSaya->id_profil)->where('status_baca', false)->count()
+        : 0;
+@endphp
 
 <header x-data="{ open: false }" class="sticky top-0 z-40 bg-gradient-to-r from-navy via-navy to-navy-dark text-white shadow-lg shadow-navy/25 ring-1 ring-white/5">
     <div class="flex h-14 items-center gap-3 px-4 sm:px-6 lg:h-[85px] lg:pl-0 lg:pr-8">
@@ -118,10 +125,15 @@
             @unless ($admin)
                 <a
                     href="{{ url('/notifikasi') }}"
-                    class="rounded-full p-2 transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-brand"
+                    class="relative rounded-full p-2 transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-brand"
                     aria-label="Notifikasi"
                 >
                     <x-icon name="bell" class="h-[29px] w-[29px]" />
+                    @if ($notifBelumDibaca > 0)
+                        <span class="absolute right-1 top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white ring-2 ring-navy">
+                            {{ $notifBelumDibaca > 99 ? '99+' : $notifBelumDibaca }}
+                        </span>
+                    @endif
                 </a>
             @endunless
 
