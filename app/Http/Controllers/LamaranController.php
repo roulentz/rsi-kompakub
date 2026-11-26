@@ -39,19 +39,6 @@ class LamaranController extends Controller
                     'Pelamar Baru',
                     'Terdapat pelamar baru pada postingan Anda'
                 );
-
-                // Khusus alur demo: saat pelamar MZ mengirim lamaran, sistem otomatis memicu notifikasi keputusan diterima
-                // Cek email spesifik agar tidak terpicu di environment pengujian
-                if (! app()->runningUnitTests() && $profil->user?->email === 'zikraaditya@student.ub.ac.id') {
-                    $lamaran->update(['status' => 'Diterima']);
-
-                    Notifikasi::kirim(
-                        $profil->id_profil,
-                        'Diterima',
-                        'Selamat! Lamaran Anda untuk postingan ' . ($postingan->nama_lomba ?? 'Cari Tim') . ' telah DITERIMA oleh ' . ($postingan->pembuat->user->name ?? 'pembuat tim') . '.',
-                        '/postingan/' . $postingan->id_postingan
-                    );
-                }
             });
         } catch (UniqueConstraintViolationException) {
             return back()->withErrors(['lamaran' => 'Anda sudah melamar ke postingan ini']);
